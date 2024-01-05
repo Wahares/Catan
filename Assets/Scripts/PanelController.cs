@@ -19,6 +19,7 @@ public class PanelController : MonoBehaviour
         num = diceNumber;
         coinText.text = diceNumber.ToString();
         GetComponent<MeshRenderer>().material = materials[(int)type];
+        transform.name = $"{mapPos.x} : {mapPos.y} - [{diceNumber}] : {type}";
         this.mapPos = mapPos;
         if(type == PanelType.Desert)
             Destroy(coinText.transform.parent.gameObject);
