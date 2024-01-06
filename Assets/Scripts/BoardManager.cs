@@ -8,7 +8,7 @@ public class BoardManager : MonoBehaviour
     private const float HEX_FACTOR = 1.73f;
     private const float TILE_DELAY = 0.05f;
     private const float TILE_FLY_SPEED = 1f;
-    private const int MAP_SIZE = 3;
+    public static int MAP_SIZE = 3;
 
     [SerializeField]
     private GameObject TilePrefab, borderPrefab;
