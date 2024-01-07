@@ -34,7 +34,7 @@ public class MenuManager : MonoBehaviour
 
     public void hostGame()
     {
-        BoardManager.MAP_SIZE = mapSizePicker.value;
+        BoardManager.MapSize = mapSizePicker.value;
         TurnManager.TIME_LIMIT = timeLimitPicker.value;
         TurnManager.DO_LIMIT_TURN = timeLimitPicker.value != 0;
         Debug.Log("Beginning to host a game...");

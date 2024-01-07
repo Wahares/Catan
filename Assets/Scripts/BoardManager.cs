@@ -8,7 +8,7 @@ public class BoardManager : MonoBehaviour
     private const float HEX_FACTOR = 1.73f;
     private const float TILE_DELAY = 0.05f;
     private const float TILE_FLY_SPEED = 1f;
-    public static int MAP_SIZE = 3;
+    public static int MapSize = 3;
 
     [SerializeField]
     private GameObject TilePrefab, borderPrefab;
@@ -27,7 +27,7 @@ public class BoardManager : MonoBehaviour
         instance = this;
     }
 
-    public bool CreateData(int mapSize, out int[] diceNums, out int[] tileTypes)
+    public bool GenerateData(int mapSize, out int[] diceNums, out int[] tileTypes)
     {
         int NumOfTiles = 3 * mapSize * (mapSize - 1); //minus desert
         diceNums = new int[NumOfTiles];
@@ -129,11 +129,107 @@ public class BoardManager : MonoBehaviour
     public void createBoard()
     {
         int[] diceNums, tileTypes;
-        if(CreateData(MAP_SIZE,out diceNums, out tileTypes))
-            CreateBoardFromData(MAP_SIZE, diceNums, tileTypes);
+        if (GenerateData(MapSize, out diceNums, out tileTypes))
+            CreateBoardFromData(MapSize, diceNums, tileTypes);
     }
     private void BeginGame()
     {
         OnBoardInitialized?.Invoke();
     }
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        for (int i = 0; i < MapSize * 2 - 1; i++)
+        {
+            for (int j = 0; j < RoadsInRing(i); j++)
+                Gizmos.DrawCube(GetRoadPosition(new Vector2Int(i, j)), Vector3.one * 0.25f);
+        }
+        Gizmos.color = Color.red;
+        for (int i = 0; i < MapSize; i++)
+        {
+            for (int j = 0; j < CrossingsInRing(i); j++)
+                Gizmos.DrawCube(GetCrossingPosition(new Vector2Int(i, j)), Vector3.one * 0.4f);
+        }
+    }
+
+    public Vector2Int getThis;
+    public Vector3 GetCrossingPosition(Vector2Int cords)
+    {
+        Vector3 pos = Vector3.zero;
+
+        int offset = (cords.x) / 2 + cords.x + 1;
+
+        pos.x = Mathf.Cos(Mathf.Deg2Rad * 150) * offset;
+        pos.z = Mathf.Sin(Mathf.Deg2Rad * 150) * offset;
+
+        int numOfCrossings = CrossingsInRing(cords.x);
+
+        cords.y = (cords.y + numOfCrossings) % numOfCrossings;
+
+        bool inwardRing = cords.x % 2 == 1;
+
+        int numToTurnRight = cords.x * 2 + 1;
+
+        bool goRight = !inwardRing;
+        float angle = inwardRing ? 90 : 30;
+
+        int movesToDo = cords.y;
+        for (int i = 0; i < 7; i++)
+        {
+            int move = numToTurnRight;
+            if (i == 0 && cords.x != 0)
+                move = (cords.x + 1);
+            for (int j = 0; j < move; j++)
+            {
+                if (movesToDo == 0)
+                    return pos;
+                if (j == move - 1)
+                    goRight = false;
+                pos.z += Mathf.Sin(Mathf.Deg2Rad * angle);
+                pos.x += Mathf.Cos(Mathf.Deg2Rad * angle);
+                angle += !goRight ? -60 : 60;
+                goRight = !goRight;
+                movesToDo--;
+                if (movesToDo == 0)
+                    return pos;
+            }
+        }
+        Debug.LogError("Unable to find position for " + cords.ToString());
+        return Vector3.zero;
+    }
+
+    public Vector3 GetRoadPosition(Vector2Int cords)
+    {
+        Vector3 pos;
+        if (cords.x % 2 == 0)
+            return Vector3.Lerp(GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2 - 1))
+                , GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2)), 0.5f);
+
+        TileController tileController = Tiles[new Vector2Int((cords.x + 1) / 2, cords.y)];
+
+        pos = tileController.transform.position;
+        int ring = (cords.x + 1) / 2;
+        float angle = 60 - cords.y / ring * 60;
+        pos.z += Mathf.Sin(Mathf.Deg2Rad * angle) * 1.73f / 2;
+        pos.x += Mathf.Cos(Mathf.Deg2Rad * angle) * 1.73f / 2;
+
+
+
+        return pos;
+    }
+
+    public int TilesInRing(int ringIndex) => ringIndex == 0 ? 1 : ringIndex * 6;
+    public int TilesOnBoard(int size) => 1 + 3 * size * (size - 1);
+    public int CrossingsInRing(int ringIndex) => 6 * (ringIndex * 2 + 1);
+    public int RoadsInRing(int ringIndex)
+    {
+        if (ringIndex % 2 == 0)
+            return CrossingsInRing(ringIndex / 2);
+        return TilesInRing((ringIndex + 1) / 2);
+    }
+
+
+
+
+
 }
