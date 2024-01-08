@@ -8,7 +8,7 @@ public class BoardManager : MonoBehaviour
     private const float HEX_FACTOR = 1.73f;
     private const float TILE_DELAY = 0.05f;
     private const float TILE_FLY_SPEED = 1f;
-    public static int MapSize = 3;
+    public static int MapSize = 5;
 
     [SerializeField]
     private GameObject TilePrefab, borderPrefab;
@@ -16,6 +16,7 @@ public class BoardManager : MonoBehaviour
     private Transform boardRoot;
 
     public Dictionary<Vector2Int, TileController> Tiles { get; private set; }
+    public Dictionary<int, TileController> numberedTiles { get; private set; }
     public Dictionary<Vector2Int, CornerController> corners { get; private set; }
     public Dictionary<Vector2Int, RoadController> roads { get; private set; }
 
@@ -26,52 +27,49 @@ public class BoardManager : MonoBehaviour
     {
         instance = this;
     }
-
-    public bool GenerateData(int mapSize, out int[] diceNums, out int[] tileTypes)
+    public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes)
     {
-        int NumOfTiles = 3 * mapSize * (mapSize - 1); //minus desert
-        diceNums = new int[NumOfTiles];
-        tileTypes = new int[NumOfTiles];
+        int numberOfTiles = TilesOnBoard(mapSize) - 1;
+        tileTypes = new int[numberOfTiles];
+        diceNums = new int[numberOfTiles];
 
-        List<int> diceNumsList = new List<int>(new int[] { 2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12 });
 
-        Dictionary<TileType, int> TileTypes = new();
+        List<TileType> availableTiles = new();
 
-        TileTypes.Add(TileType.Forest, 4);
-        TileTypes.Add(TileType.Farmland, 4);
-        TileTypes.Add(TileType.Pasture, 4);
-        TileTypes.Add(TileType.ClayPit, 3);
-        TileTypes.Add(TileType.Mine, 3);
+        for (int i = 0; i < numberOfTiles * 2 / 3; i++)
+            availableTiles.Add(TileType.Farmland + i % 3);
+        for (int i = 0; i < numberOfTiles / 3; i++)
+            availableTiles.Add(TileType.ClayPit + i % 2);
+        for (int i = 0; i < numberOfTiles - availableTiles.Count; i++)
+            availableTiles.Add(TileType.Farmland + i % 5);
 
-        int numOfTypes = 0;
-        foreach (var value in TileTypes.Values)
-            numOfTypes += value;
-
-        if (numOfTypes != NumOfTiles || diceNumsList.Count != NumOfTiles)
+        List<int> availableDiceNums = new();
+        for (int i = 0; i < numberOfTiles/10+1; i++)
         {
-            Debug.LogError($"board numbers don't match! -> {NumOfTiles} {numOfTypes} {diceNumsList.Count}");
-            return false;
-        }
-        for (int i = 0; i < NumOfTiles; i++)
-        {
-            TileType type = TileType.Desert;
-            while (type == TileType.Desert)
+            for (int j = 0; j < 5; j++)
             {
-                TileType randomType = (TileType)UnityEngine.Random.Range(1, 6);
-                if (TileTypes.ContainsKey(randomType))
-                {
-                    if (TileTypes[randomType] > 0)
-                    {
-                        TileTypes[randomType]--;
-                        tileTypes[i] = (int)randomType;
-                        break;
-                    }
-                }
+                if (availableDiceNums.Count >= numberOfTiles)
+                    break;
+                availableDiceNums.Add(8 + j);
+                availableDiceNums.Add(6 - j);
             }
-            int randomNum = UnityEngine.Random.Range(0, diceNumsList.Count);
-            diceNums[i] = diceNumsList[randomNum];
-            diceNumsList.RemoveAt(randomNum);
         }
+        for (int i = 0; i < numberOfTiles; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, availableTiles.Count);
+            tileTypes[i] = (int)availableTiles[randomIndex];
+            availableTiles.RemoveAt(randomIndex);
+            randomIndex = UnityEngine.Random.Range(0, availableDiceNums.Count);
+            diceNums[i] = availableDiceNums[randomIndex];
+            availableDiceNums.RemoveAt(randomIndex);
+        }
+        if (diceNums.Length != numberOfTiles || tileTypes.Length != numberOfTiles)
+            throw new Exception("Wrong sizes of tile data containers!");
+
+        for (int i = 0; i < numberOfTiles; i++)
+            if (diceNums[i] == 0 || tileTypes[i] == 0)
+                throw new Exception("Board data containers not fully generated!");
+
         return true;
     }
 
@@ -80,6 +78,8 @@ public class BoardManager : MonoBehaviour
         OnBoardInitialized += () => { Debug.Log("Board Initialized"); };
 
         Tiles = new();
+        numberedTiles = new();
+
 
         for (int i = 0; i < 6; i++)
             Instantiate(borderPrefab, Vector3.zero, Quaternion.Euler(-90, 0, 30 + i * 60)).transform.parent = boardRoot;
@@ -129,7 +129,7 @@ public class BoardManager : MonoBehaviour
     public void createBoard()
     {
         int[] diceNums, tileTypes;
-        if (GenerateData(MapSize, out diceNums, out tileTypes))
+        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes))
             CreateBoardFromData(MapSize, diceNums, tileTypes);
     }
     private void BeginGame()
@@ -138,6 +138,11 @@ public class BoardManager : MonoBehaviour
     }
     private void OnDrawGizmosSelected()
     {
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawCube(GetCrossingPosition(getThis), Vector3.one * 0.25f);
+        if (Tiles == null)
+            return;
         Gizmos.color = Color.green;
         for (int i = 0; i < MapSize * 2 - 1; i++)
         {
@@ -153,32 +158,31 @@ public class BoardManager : MonoBehaviour
     }
 
     public Vector2Int getThis;
+
     public Vector3 GetCrossingPosition(Vector2Int cords)
     {
         Vector3 pos = Vector3.zero;
 
-        int offset = (cords.x) / 2 + cords.x + 1;
+        int offset = 1+cords.x*2;//(cords.x) / 2 + cords.x + 1;
 
         pos.x = Mathf.Cos(Mathf.Deg2Rad * 150) * offset;
-        pos.z = Mathf.Sin(Mathf.Deg2Rad * 150) * offset;
+        pos.z = Mathf.Sin(Mathf.Deg2Rad * 150);
 
         int numOfCrossings = CrossingsInRing(cords.x);
 
         cords.y = (cords.y + numOfCrossings) % numOfCrossings;
 
-        bool inwardRing = cords.x % 2 == 1;
 
         int numToTurnRight = cords.x * 2 + 1;
 
-        bool goRight = !inwardRing;
-        float angle = inwardRing ? 90 : 30;
+        bool goRight = true;
+        float angle = goRight ? 30 : 90;
 
         int movesToDo = cords.y;
         for (int i = 0; i < 7; i++)
         {
             int move = numToTurnRight;
-            if (i == 0 && cords.x != 0)
-                move = (cords.x + 1);
+
             for (int j = 0; j < move; j++)
             {
                 if (movesToDo == 0)

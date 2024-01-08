@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4376093553674168019}
   - component: {fileID: 9062429149368997115}
   - component: {fileID: 2319695851995378136}
+  - component: {fileID: 4604775672695476476}
   m_Layer: 0
   m_Name: tile
   m_TagString: Untagged
@@ -100,14 +101,36 @@ MonoBehaviour:
   coinText: {fileID: 6748557303816179635}
   materials:
   - {fileID: 2100000, guid: 5bc4aaa7932592d4295c42d24c348337, type: 2}
-  - {fileID: 2100000, guid: 8a9544945dd67e6498f0978455268999, type: 2}
   - {fileID: 2100000, guid: 0c07ad830c4e0844f92524946a3383ea, type: 2}
+  - {fileID: 2100000, guid: 8a9544945dd67e6498f0978455268999, type: 2}
   - {fileID: 2100000, guid: 73b61c0a6d851ad4db63b334c286a5a3, type: 2}
   - {fileID: 2100000, guid: 69ad6cd12eeab424da50d64b55a120b5, type: 2}
   - {fileID: 2100000, guid: 828b4f84ffb5f934aa3ae7310ac1fde3, type: 2}
   num: 0
   type: 0
   mapPos: {x: 0, y: 0}
+--- !u!64 &4604775672695476476
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6298734672897206961}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -4438438701489736479, guid: d050862321d55104490c202cea35b56c, type: 3}
 --- !u!1 &8063412818161084356
 GameObject:
   m_ObjectHideFlags: 0

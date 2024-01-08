@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 public class TileController : MonoBehaviour
@@ -23,13 +21,14 @@ public class TileController : MonoBehaviour
         this.mapPos = mapPos;
         if(type == TileType.Desert)
             Destroy(coinText.transform.parent.gameObject);
+        BoardManager.instance.numberedTiles.Add(diceNumber, this);
     }
 }
 public enum TileType
 {
     Desert,
-    Forest,
     Farmland,
+    Forest,
     Pasture,
     ClayPit,
     Mine,
