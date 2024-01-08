@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using FishNet.Object;
 
-public class BoardManager : MonoBehaviour
+public class BoardManager : NetworkBehaviour
 {
     private const float HEX_FACTOR = 1.73f;
     private const float TILE_DELAY = 0.05f;
     private const float TILE_FLY_SPEED = 1f;
-    public static int MapSize = 5;
+    public static int MapSize = 3;
 
     [SerializeField]
     private GameObject TilePrefab, borderPrefab;
@@ -16,7 +17,7 @@ public class BoardManager : MonoBehaviour
     private Transform boardRoot;
 
     public Dictionary<Vector2Int, TileController> Tiles { get; private set; }
-    public Dictionary<int, TileController> numberedTiles { get; private set; }
+    public Dictionary<int, Action> rollActions { get; private set; }
     public Dictionary<Vector2Int, CornerController> corners { get; private set; }
     public Dictionary<Vector2Int, RoadController> roads { get; private set; }
 
@@ -44,7 +45,7 @@ public class BoardManager : MonoBehaviour
             availableTiles.Add(TileType.Farmland + i % 5);
 
         List<int> availableDiceNums = new();
-        for (int i = 0; i < numberOfTiles/10+1; i++)
+        for (int i = 0; i < numberOfTiles / 10 + 1; i++)
         {
             for (int j = 0; j < 5; j++)
             {
@@ -78,7 +79,7 @@ public class BoardManager : MonoBehaviour
         OnBoardInitialized += () => { Debug.Log("Board Initialized"); };
 
         Tiles = new();
-        numberedTiles = new();
+        rollActions = new();
 
 
         for (int i = 0; i < 6; i++)
@@ -112,8 +113,16 @@ public class BoardManager : MonoBehaviour
                     int diceNum = diceNums[tileID];
                     TileType type = (TileType)tileTypes[tileID];
                     go.GetComponent<TileController>().Initialize(type, diceNum, mapPos);
+                    if (NetworkManager?.IsServer ?? true)
+                    {
+                        if (!rollActions.ContainsKey(diceNum))
+                            rollActions.Add(diceNum, null);
+                        rollActions[diceNum] += go.GetComponent<TileController>().OnNumberRolled;
+                    }
                     tileID++;
                 }
+
+
 
                 if (ring == 0)
                     break;
@@ -163,7 +172,7 @@ public class BoardManager : MonoBehaviour
     {
         Vector3 pos = Vector3.zero;
 
-        int offset = 1+cords.x*2;//(cords.x) / 2 + cords.x + 1;
+        int offset = 1 + cords.x * 2;//(cords.x) / 2 + cords.x + 1;
 
         pos.x = Mathf.Cos(Mathf.Deg2Rad * 150) * offset;
         pos.z = Mathf.Sin(Mathf.Deg2Rad * 150);

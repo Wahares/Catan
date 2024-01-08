@@ -21,8 +21,8 @@ public class TileController : MonoBehaviour
         this.mapPos = mapPos;
         if(type == TileType.Desert)
             Destroy(coinText.transform.parent.gameObject);
-        BoardManager.instance.numberedTiles.Add(diceNumber, this);
     }
+    public virtual void OnNumberRolled() { }
 }
 public enum TileType
 {

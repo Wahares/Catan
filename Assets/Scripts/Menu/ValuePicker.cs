@@ -5,7 +5,7 @@ public class ValuePicker : MonoBehaviour
     public int value,max,min;
     public TMPro.TextMeshProUGUI textDisplay;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         textDisplay.text = ToString();
     }
