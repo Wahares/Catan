@@ -12,12 +12,11 @@ public class GameManager : NetworkBehaviour
     }
     private void Start()
     {
-        GetComponent<BoardManager>().createBoard();
+        //GetComponent<BoardManager>().createBoard();
     }
     public override void OnStartServer()
     {
         base.OnStartServer();
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, PlayerManager.MaxPlayers);
-
     }
 }

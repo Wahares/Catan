@@ -1,3 +1,4 @@
+using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
@@ -14,13 +15,18 @@ public class PlayerManager : NetworkBehaviour
     public readonly SyncDictionary<int,int> playerColors = new();
 
 
-    
-
-
 
     [ServerRpc(RequireOwnership = false)]
     public void markMeAsReady(NetworkConnection nc, Color color)
     {
+
+    }
+
+
+
+    private void checkIfCanStart()
+    {
+        if(playerColors.Count == InstanceFinder.ServerManager.Clients.Count)
 
     }
 }
