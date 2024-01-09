@@ -42,19 +42,22 @@ public class MenuManager : MonoBehaviour
         TurnManager.DO_LIMIT_TURN = timeLimitPicker.value != 0;
         PlayerManager.CurrentlyMaxPlayers = maxPlayersPicker.value;
         Debug.Log("Beginning to host a game...");
-        InstanceFinder.ServerManager.StartConnection();
+        InstanceFinder.TransportManager.Transport.StartConnection(true);
+        InstanceFinder.TransportManager.Transport.StartConnection(false);
     }
     private void OnEnable()
     {
-        InstanceFinder.ServerManager.OnServerConnectionState += OnServerCreated;
+        InstanceFinder.ClientManager.OnClientConnectionState += OnClientCreated;
     }
     private void OnDisable()
     {
-        InstanceFinder.ServerManager.OnServerConnectionState -= OnServerCreated;
+        InstanceFinder.ClientManager.OnClientConnectionState -= OnClientCreated;
     }
-    public void OnServerCreated(ServerConnectionStateArgs args)
+    public void OnClientCreated(ClientConnectionStateArgs args)
     {
         if (args.ConnectionState != LocalConnectionState.Started)
+            return;
+        if (!InstanceFinder.NetworkManager.IsServer)
             return;
         SceneLoadData sld = new SceneLoadData("Game");
         sld.ReplaceScenes = ReplaceOption.All;

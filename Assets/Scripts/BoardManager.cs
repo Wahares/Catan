@@ -28,6 +28,12 @@ public class BoardManager : NetworkBehaviour
     {
         instance = this;
     }
+    public void createBoard()
+    {
+        int[] diceNums, tileTypes;
+        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes))
+            CreateBoardFromData(MapSize, diceNums, tileTypes);
+    }
     public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes)
     {
         int numberOfTiles = TilesOnBoard(mapSize) - 1;
@@ -74,6 +80,7 @@ public class BoardManager : NetworkBehaviour
         return true;
     }
 
+    [ObserversRpc]
     public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)
     {
         OnBoardInitialized += () => { Debug.Log("Board Initialized"); };
@@ -135,12 +142,6 @@ public class BoardManager : NetworkBehaviour
         Invoke(nameof(BeginGame), nextTileDelay + TILE_FLY_SPEED);
     }
 
-    public void createBoard()
-    {
-        int[] diceNums, tileTypes;
-        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes))
-            CreateBoardFromData(MapSize, diceNums, tileTypes);
-    }
     private void BeginGame()
     {
         OnBoardInitialized?.Invoke();

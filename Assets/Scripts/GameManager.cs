@@ -1,22 +1,32 @@
+using FishNet;
 using FishNet.Object;
 using Steamworks;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
+
 public class GameManager : NetworkBehaviour
 {
     public static GameManager instance;
-    private void Awake()
-    {
-        instance = this;
-    }
+    public static event Action OnGameStarted;
     private void Start()
     {
-        //GetComponent<BoardManager>().createBoard();
+        instance = this;
+        if (InstanceFinder.NetworkManager.IsServer)
+            OnGameStarted += GetComponent<BoardManager>().createBoard;
     }
     public override void OnStartServer()
     {
         base.OnStartServer();
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, PlayerManager.MaxPlayers);
     }
+
+    public void startGame()
+    {
+        startGameRPC();
+    }
+    [ObserversRpc]
+    private void startGameRPC()
+    {
+        OnGameStarted?.Invoke();
+    }
+
 }

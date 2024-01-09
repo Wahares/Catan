@@ -100,7 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coinText: {fileID: 6748557303816179635}
   materials:
-  - {fileID: 2100000, guid: 5bc4aaa7932592d4295c42d24c348337, type: 2}
+  - {fileID: 2100000, guid: 23a1b64aa11ba1f4faf5fd117a4719da, type: 2}
   - {fileID: 2100000, guid: 0c07ad830c4e0844f92524946a3383ea, type: 2}
   - {fileID: 2100000, guid: 8a9544945dd67e6498f0978455268999, type: 2}
   - {fileID: 2100000, guid: 73b61c0a6d851ad4db63b334c286a5a3, type: 2}
