@@ -1,19 +1,13 @@
 using Steamworks;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAvatar : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public void Initialize(ulong steamID)
+    public PlayerAvatar Initialize(ulong steamID)
     {
-
-    }
-    private void Start()
-    {
-        SteamAPI.Init();
         spriteRenderer.sprite = getSteamAvatar(SteamUser.GetSteamID());
+        return this;
     }
     public static Sprite getSteamAvatar(CSteamID steamID)
     {

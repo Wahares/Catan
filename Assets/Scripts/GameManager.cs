@@ -7,6 +7,7 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager instance;
     public static event Action OnGameStarted;
+    public static bool started = false;
     private void Start()
     {
         instance = this;
@@ -27,6 +28,7 @@ public class GameManager : NetworkBehaviour
     private void startGameRPC()
     {
         OnGameStarted?.Invoke();
+        started = true;
     }
 
 }

@@ -21,7 +21,7 @@ public class BoardManager : NetworkBehaviour
     public Dictionary<Vector2Int, CornerController> corners { get; private set; }
     public Dictionary<Vector2Int, RoadController> roads { get; private set; }
 
-    public Action OnBoardInitialized;
+    public static event Action OnBoardInitialized;
 
     public static BoardManager instance;
     private void Awake()
