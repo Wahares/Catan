@@ -1,5 +1,7 @@
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
+
 public class TileController : MonoBehaviour
 {
     [SerializeField]
@@ -22,7 +24,18 @@ public class TileController : MonoBehaviour
         if(type == TileType.Desert)
             Destroy(coinText.transform.parent.gameObject);
     }
-    public virtual void OnNumberRolled() { }
+    public virtual void OnNumberRolled()
+    {
+        if (type == TileType.Desert)
+            return;
+        transform.DOKill();
+        transform.DOScaleZ(3, 0.5f).SetEase(Ease.InSine).OnComplete(() => transform.DOScaleZ(1, 0.5f).SetEase(Ease.OutSine));
+
+
+
+
+
+    }
 }
 public enum TileType
 {

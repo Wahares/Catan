@@ -16,8 +16,6 @@ public class TurnManager : NetworkBehaviour
 
     public int myOrder;
 
-
-
     private void Awake()
     {
         instance = this;

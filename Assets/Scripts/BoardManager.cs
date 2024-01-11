@@ -25,11 +25,18 @@ public class BoardManager : NetworkBehaviour
     public static event Action OnBoardInitialized;
 
     public static BoardManager instance;
+
+    public Vector2Int currentBanditPos;
+
+
     private void Awake()
     {
         instance = this;
-        if (InstanceFinder.NetworkManager.IsServer)
-            GameManager.OnGameStarted += createBoard;
+        DiceController.instance.OnDiceRolled += UseDiceData;
+        if (!InstanceFinder.NetworkManager.IsServer)
+            return;
+        GameManager.OnGameStarted += createBoard;
+        currentBanditPos = -Vector2Int.right;
     }
     private void OnDestroy()
     {
@@ -86,6 +93,7 @@ public class BoardManager : NetworkBehaviour
 
         return true;
     }
+    public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
 
     [ObserversRpc]
     public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)
@@ -157,7 +165,7 @@ public class BoardManager : NetworkBehaviour
             {
                 GameObject obj = Instantiate(crossingPrefab, boardRoot);
                 obj.transform.position = GetCrossingPosition(new Vector2Int(i, j));
-                crossings.Add(new Vector2Int(i, j), obj.GetComponent<CrossingController>());
+                crossings.Add(new Vector2Int(i, j), obj.GetComponent<CrossingController>().Initialize(new Vector2Int(i, j)));
             }
         }
         for (int i = 0; i < MapSize * 2 - 1; i++)
@@ -168,7 +176,7 @@ public class BoardManager : NetworkBehaviour
                 float angle = 0;
                 obj.transform.position = GetRoadPosition(new Vector2Int(i, j), out angle);
                 obj.transform.eulerAngles = Vector3.up * angle;
-                roads.Add(new Vector2Int(i, j), obj.GetComponent<RoadController>());
+                roads.Add(new Vector2Int(i, j), obj.GetComponent<RoadController>().Initialize(new Vector2Int(i, j)));
             }
         }
 
@@ -181,6 +189,56 @@ public class BoardManager : NetworkBehaviour
     {
         OnBoardInitialized?.Invoke();
     }
+
+    private void UseDiceData(int basic, int red, diceActions action)
+    {
+        rollActions[basic + red]?.Invoke();
+    }
+
+    public int numberOfPieces(int ownerID, PieceType type)
+    {
+        if (type == PieceType.Unset)
+            return -1;
+        int tmp = 0;
+        if (type == PieceType.Road)
+        {
+            foreach (var road in roads)
+            {
+                if (road.Value.currentPiece == null)
+                    continue;
+                if (road.Value.currentPiece.pieceOwnerID == ownerID && road.Value.currentPiece.pieceType == type)
+                    tmp++;
+            }
+        }
+        else
+        {
+            foreach (var crossing in crossings)
+            {
+                if (crossing.Value.currentPiece == null)
+                    continue;
+                if (crossing.Value.currentPiece.pieceOwnerID == ownerID && crossing.Value.currentPiece.pieceType == type)
+                    tmp++;
+            }
+        }
+        return tmp;
+    }
+
+    public void setPiece(Vector2Int pos, SinglePieceController spc)
+    {
+        if (spc.pieceType == PieceType.Road)
+            roads[pos].SetPiece(spc as SingleRoadController);
+        else
+            crossings[pos].SetPiece(spc);
+    }
+    public SinglePieceController getPiece(Vector2Int pos, PieceType type)
+    {
+        if (type == PieceType.Road)
+            return roads[pos].currentPiece;
+        else
+            return crossings[pos].currentPiece;
+    }
+
+
     private void OnDrawGizmosSelected()
     {
 
@@ -192,7 +250,7 @@ public class BoardManager : NetworkBehaviour
         for (int i = 0; i < MapSize * 2 - 1; i++)
         {
             for (int j = 0; j < RoadsInRing(i); j++)
-                Gizmos.DrawCube(GetRoadPosition(new Vector2Int(i, j),out float angle), Vector3.one * 0.25f);
+                Gizmos.DrawCube(GetRoadPosition(new Vector2Int(i, j), out float angle), Vector3.one * 0.25f);
         }
         Gizmos.color = Color.red;
         for (int i = 0; i < MapSize; i++)
@@ -256,7 +314,7 @@ public class BoardManager : NetworkBehaviour
             Vector3 pos2 = GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2));
             pos1.y = 0;
             pos2.y = 0;
-            roadAngle = Vector3.SignedAngle(Vector3.forward, pos2 - pos1,Vector3.up);
+            roadAngle = Vector3.SignedAngle(Vector3.forward, pos2 - pos1, Vector3.up);
             return Vector3.Lerp(pos1, pos2, 0.5f);
         }
 
@@ -269,8 +327,8 @@ public class BoardManager : NetworkBehaviour
         pos.z += Mathf.Sin(Mathf.Deg2Rad * angle) * 1.73f / 2;
         pos.x += Mathf.Cos(Mathf.Deg2Rad * angle) * 1.73f / 2;
         Vector3 tilepos = tileController.transform.localPosition;
-        tilepos.y = 0;  
-        roadAngle = Vector3.SignedAngle(Vector3.forward, pos - tilepos,Vector3.up)+90;
+        tilepos.y = 0;
+        roadAngle = Vector3.SignedAngle(Vector3.forward, pos - tilepos, Vector3.up) + 90;
 
         return pos;
     }

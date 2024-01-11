@@ -38,6 +38,7 @@ public class GameManager : NetworkBehaviour
     private void OnDestroy()
     {
         OnGameStarted = null;
+        started = false;
     }
 
 }

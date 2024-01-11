@@ -5,61 +5,45 @@ public class PreparedDiceRotations : MonoBehaviour
 {
     [SerializeField]
     private Vector3 rotationOffset;
+    private Transform normalParent;
 
-    public void RotateToNumber(int number)
+    private void Awake()
     {
+        normalParent = transform.parent.parent;
+    }
+
+    public void SetToThrow(int number)
+    {
+        transform.parent.DOKill();
+        transform.parent.parent = normalParent;
+        transform.parent.localPosition = Vector3.zero;
         transform.localEulerAngles = rotationOffset;
+        transform.Rotate(GetRotation(number));
+    }
+    private Vector3 GetRotation(int number)
+    {
         switch (number)
         {
             case 1:
-                transform.Rotate(90, 0, 0);
-                break;
+                return new Vector3(90, 0, 0);
             case 2:
-                transform.Rotate(0, 0, 90);
-                break;
+                return new Vector3(0, 0, 90);
             case 3:
-                transform.Rotate(180, 0, 0);
-                break;
-            case 4:
-                break;
+                return new Vector3(180, 0, 0);
             case 5:
-                transform.Rotate(0, 0, -90);
-                break;
+                return new Vector3(0, 0, -90);
             case 6:
-                transform.Rotate(-90, 0, 0);
-                break;
-            default:
-                break;
+                return new Vector3(-90, 0, 0);
         }
+        return Vector3.zero;
     }
     public void snapToPreview(Transform previewPivot,Vector3 offset,int number)
     {
-        switch (number)
-        {
-            case 1:
-                transform.localEulerAngles = new Vector3 (90, 0, 0);
-                break;
-            case 2:
-                transform.localEulerAngles = new Vector3(0, 0, 90);
-                break;
-            case 3:
-                transform.localEulerAngles = new Vector3(180, 0, 0);
-                break;
-            case 4:
-                transform.localEulerAngles = Vector3.zero;
-                break;
-            case 5:
-                transform.localEulerAngles = new Vector3(0, 0, -90);
-                break;
-            case 6:
-                transform.localEulerAngles = new Vector3(-90, 0, 0);
-                break;
-            default:
-                break;
-        }
+        transform.parent.parent = previewPivot;
+        transform.localEulerAngles = GetRotation(number);
         transform.parent.DOComplete();
-        transform.parent.DOMove(previewPivot.transform.position+ offset, 1);
-        transform.parent.DORotate(previewPivot.transform.eulerAngles, 1);
+        transform.parent.DOLocalMove(offset, 1);
+        transform.parent.DOLocalRotate(Vector3.zero, 1);
     }
 
 }

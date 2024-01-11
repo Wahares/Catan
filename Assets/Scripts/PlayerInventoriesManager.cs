@@ -13,8 +13,8 @@ public class PlayerInventoriesManager : NetworkBehaviour
     [field: SerializeField]
     public List<CardSO> availableCards { get; private set; }
 
-    [SerializeField]
-    private PlayerInventoryView localInventory;
+    [field: SerializeField]
+    public PlayerInventoryView localInventory { get; private set; }
 
 
     private void Awake()
@@ -89,13 +89,14 @@ public class PlayerInventoriesManager : NetworkBehaviour
     }
 
 
-
-
-
-
-
-
-
+    [SerializeField]
+    private GameObject flyingCardPrefab;
+    public GameObject createFlyingCard(bool hidden, int cardID)
+    {
+        GameObject obj = Instantiate(flyingCardPrefab);
+        obj.GetComponent<FlyingCardView>().Initialize(cardID);
+        return obj;
+    }
 
 
 }

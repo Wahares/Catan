@@ -1,18 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
-public class CrossingController : MonoBehaviour
+public class CrossingController : PieceContainerController<CrossingController,SinglePieceController>
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+    public void TileNumberRolled(TileController source)
     {
-        
+        (currentPiece as SettlementController)?.TileRolled(source);
     }
 }

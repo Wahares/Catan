@@ -17,6 +17,11 @@ public class PlayerInventoryView : MonoBehaviour
 
     private bool isMine = false;
 
+
+    public List<HandCardView> selectedCards = new();
+
+
+
     public void initialize(bool isMine)
     {
         this.isMine = isMine;
@@ -69,7 +74,8 @@ public class PlayerInventoryView : MonoBehaviour
                 }
             }
             else
-                newTexture = blankNormal;
+                card.GetComponent<CardView>();
+            newTexture = blankNormal;
             card.GetComponent<CardView>().OverrideTexture(newTexture);
             if (card.GetComponent<HandCardEffect>() != null)
                 card.GetComponent<HandCardEffect>().enabled = false;
@@ -116,8 +122,4 @@ public class PlayerInventoryView : MonoBehaviour
             cards[i].transform.localPosition = persistentPivot.right * i;
         }
     }
-
-
-
-
 }

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +10,9 @@ public class DiceController : NetworkBehaviour
     private Animator basicDice, redDice, actionDice;
     [SerializeField]
     private Transform previewPivot;
+    [SerializeField]
+    private Vector3 hiddenPos, rollPos;
+
 
 
     public static DiceController instance;
@@ -18,7 +22,6 @@ public class DiceController : NetworkBehaviour
     private void Awake()
     {
         instance = this;
-        Invoke("rollDice", 1);//  rollDice();
     }
 
     [Server]
@@ -32,6 +35,12 @@ public class DiceController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void rollDice()
     {
+        if (!GameManager.started)
+        {
+            Debug.LogError("Can't roll dices - game hasn't started yet!");
+            return;
+        }
+
         ushort basic;
         ushort red;
         ushort actions;
@@ -43,7 +52,8 @@ public class DiceController : NetworkBehaviour
 
         recieveRoll(coded);
     }
-
+    private Coroutine currentRoll;
+    private int bufferedBasic, bufferedRed, bufferedAction;
     [ObserversRpc]
     private void recieveRoll(ushort codedRoll)
     {
@@ -53,30 +63,40 @@ public class DiceController : NetworkBehaviour
 
         Debug.Log($"rolled: {basic} {red} {actionFromDiceNumber(action)}");
 
-        StartCoroutine(diceRollView(basic, red, action));
-
-        OnDiceRolled?.Invoke(basic, red, actionFromDiceNumber(action));
-
+        if (currentRoll != null)
+        {
+            StopCoroutine(currentRoll);
+            OnDiceRolled?.Invoke(bufferedBasic, bufferedRed, actionFromDiceNumber(bufferedAction));
+        }
+        currentRoll = StartCoroutine(diceRollView(basic, red, action));
     }
     public diceActions actionFromDiceNumber(int number) => (diceActions)Mathf.Clamp(number - 3, 0, 3);
 
     private IEnumerator diceRollView(int basic,int red,int action)
     {
+        bufferedBasic = basic;
+        bufferedRed = red;
+        bufferedAction = action;
+
         basicDice.enabled = true;
         redDice.enabled = true;
         actionDice.enabled = true;
+
+        basicDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(basic);
+        redDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(red);
+        actionDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(action);
 
         basicDice.SetInteger("whichRoll",0);
         redDice.SetInteger("whichRoll",3);
         actionDice.SetInteger("whichRoll",4);
 
+        transform.DOComplete();
+        transform.DOMove(rollPos, 0.5f);
+
         basicDice.SetTrigger("doRoll");
         redDice.SetTrigger("doRoll");
         actionDice.SetTrigger("doRoll");
 
-        basicDice.GetComponentInChildren<PreparedDiceRotations>().RotateToNumber(basic);
-        redDice.GetComponentInChildren<PreparedDiceRotations>().RotateToNumber(red);
-        actionDice.GetComponentInChildren<PreparedDiceRotations>().RotateToNumber(action);
 
         yield return new WaitForSeconds(3);
 
@@ -84,10 +104,28 @@ public class DiceController : NetworkBehaviour
         redDice.enabled = false;
         actionDice.enabled = false;
 
-        basicDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot,-previewPivot.right/3, basic);
+        basicDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot,-Vector3.right/3, basic);
         redDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot,Vector3.zero, red);
-        actionDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot, previewPivot.right / 3, action);
+        actionDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot, Vector3.right / 3, action);
 
+        yield return new WaitForSeconds(1f);
+        transform.DOComplete();
+        transform.DOMove(hiddenPos, 0.5f);
+
+
+        yield return new WaitForSeconds(2);
+
+        basicDice.transform.DOLocalMoveZ(4, 1).SetEase(Ease.InSine);
+        redDice.transform.DOLocalMoveZ(4, 1).SetEase(Ease.InSine);
+        actionDice.transform.DOLocalMoveZ(4, 1).SetEase(Ease.InSine);
+
+        yield return new WaitForSeconds(1);
+        basicDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(1);
+        redDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(1);
+        actionDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(1);
+
+        OnDiceRolled?.Invoke(basic, red, actionFromDiceNumber(action));
+        currentRoll = null;
     }
 
 

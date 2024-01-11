@@ -18,4 +18,5 @@ public abstract class CardView : MonoBehaviour
     public virtual void OnClicked() { }
     public void OverrideTexture(Material newMaterial) => render.material = newMaterial;
     public virtual void DestroyCard() { }
+    
 }
