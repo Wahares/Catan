@@ -3,6 +3,7 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using FishNet.Object;
+using FishNet;
 
 public class BoardManager : NetworkBehaviour
 {
@@ -12,13 +13,13 @@ public class BoardManager : NetworkBehaviour
     public static int MapSize = 3;
 
     [SerializeField]
-    private GameObject TilePrefab, borderPrefab;
+    private GameObject tilePrefab, borderPrefab, crossingPrefab, roadPrefab;
     [SerializeField]
     private Transform boardRoot;
 
     public Dictionary<Vector2Int, TileController> Tiles { get; private set; }
     public Dictionary<int, Action> rollActions { get; private set; }
-    public Dictionary<Vector2Int, CornerController> corners { get; private set; }
+    public Dictionary<Vector2Int, CrossingController> crossings { get; private set; }
     public Dictionary<Vector2Int, RoadController> roads { get; private set; }
 
     public static event Action OnBoardInitialized;
@@ -27,6 +28,12 @@ public class BoardManager : NetworkBehaviour
     private void Awake()
     {
         instance = this;
+        if (InstanceFinder.NetworkManager.IsServer)
+            GameManager.OnGameStarted += createBoard;
+    }
+    private void OnDestroy()
+    {
+        OnBoardInitialized = null;
     }
     public void createBoard()
     {
@@ -89,6 +96,7 @@ public class BoardManager : NetworkBehaviour
         rollActions = new();
 
 
+
         for (int i = 0; i < 6; i++)
             Instantiate(borderPrefab, Vector3.zero, Quaternion.Euler(-90, 0, 30 + i * 60)).transform.parent = boardRoot;
 
@@ -102,7 +110,7 @@ public class BoardManager : NetworkBehaviour
 
             for (int index = 0; index < Mathf.Abs(6 * ring - 0.5f) + 0.5f; index++)
             {
-                GameObject go = Instantiate(TilePrefab, pos, Quaternion.Euler(-90, 0, 180));
+                GameObject go = Instantiate(tilePrefab, pos, Quaternion.Euler(-90, 0, 180));
                 go.transform.parent = boardRoot;
 
                 go.transform.position += Vector3.up * 10;
@@ -139,6 +147,33 @@ public class BoardManager : NetworkBehaviour
                 pos.x -= Mathf.Sin(angle * Mathf.Deg2Rad) * HEX_FACTOR;
             }
         }
+
+
+        crossings = new();
+        roads = new();
+        for (int i = 0; i < MapSize; i++)
+        {
+            for (int j = 0; j < CrossingsInRing(i); j++)
+            {
+                GameObject obj = Instantiate(crossingPrefab, boardRoot);
+                obj.transform.position = GetCrossingPosition(new Vector2Int(i, j));
+                crossings.Add(new Vector2Int(i, j), obj.GetComponent<CrossingController>());
+            }
+        }
+        for (int i = 0; i < MapSize * 2 - 1; i++)
+        {
+            for (int j = 0; j < RoadsInRing(i); j++)
+            {
+                GameObject obj = Instantiate(roadPrefab, boardRoot);
+                float angle = 0;
+                obj.transform.position = GetRoadPosition(new Vector2Int(i, j), out angle);
+                obj.transform.eulerAngles = Vector3.up * angle;
+                roads.Add(new Vector2Int(i, j), obj.GetComponent<RoadController>());
+            }
+        }
+
+
+
         Invoke(nameof(BeginGame), nextTileDelay + TILE_FLY_SPEED);
     }
 
@@ -157,7 +192,7 @@ public class BoardManager : NetworkBehaviour
         for (int i = 0; i < MapSize * 2 - 1; i++)
         {
             for (int j = 0; j < RoadsInRing(i); j++)
-                Gizmos.DrawCube(GetRoadPosition(new Vector2Int(i, j)), Vector3.one * 0.25f);
+                Gizmos.DrawCube(GetRoadPosition(new Vector2Int(i, j),out float angle), Vector3.one * 0.25f);
         }
         Gizmos.color = Color.red;
         for (int i = 0; i < MapSize; i++)
@@ -212,22 +247,30 @@ public class BoardManager : NetworkBehaviour
         return Vector3.zero;
     }
 
-    public Vector3 GetRoadPosition(Vector2Int cords)
+    public Vector3 GetRoadPosition(Vector2Int cords, out float roadAngle)
     {
         Vector3 pos;
         if (cords.x % 2 == 0)
-            return Vector3.Lerp(GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2 - 1))
-                , GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2)), 0.5f);
+        {
+            Vector3 pos1 = GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2 - 1));
+            Vector3 pos2 = GetCrossingPosition(new Vector2Int(cords.x / 2, cords.y - cords.x / 2));
+            pos1.y = 0;
+            pos2.y = 0;
+            roadAngle = Vector3.SignedAngle(Vector3.forward, pos2 - pos1,Vector3.up);
+            return Vector3.Lerp(pos1, pos2, 0.5f);
+        }
 
         TileController tileController = Tiles[new Vector2Int((cords.x + 1) / 2, cords.y)];
 
-        pos = tileController.transform.position;
+        pos = tileController.transform.localPosition;
+        pos.y = 0;
         int ring = (cords.x + 1) / 2;
         float angle = 60 - cords.y / ring * 60;
         pos.z += Mathf.Sin(Mathf.Deg2Rad * angle) * 1.73f / 2;
         pos.x += Mathf.Cos(Mathf.Deg2Rad * angle) * 1.73f / 2;
-
-
+        Vector3 tilepos = tileController.transform.localPosition;
+        tilepos.y = 0;  
+        roadAngle = Vector3.SignedAngle(Vector3.forward, pos - tilepos,Vector3.up)+90;
 
         return pos;
     }

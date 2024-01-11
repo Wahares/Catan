@@ -12,9 +12,11 @@ public class TurnManager : NetworkBehaviour
     public static int currentTurn;
     public static TurnManager instance;
 
-    public static NetworkConnection[] turnOrder;
+    public static int[] turnOrder;
 
     public int myOrder;
+
+
 
     private void Awake()
     {
@@ -22,14 +24,16 @@ public class TurnManager : NetworkBehaviour
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
         BoardManager.OnBoardInitialized += randomizePlayers;
+        BoardManager.OnBoardInitialized += startPlacingPhase;
+        PlayerManager.OnPlayerDisconnected += playerWithTurnDisconnected;
     }
     [Server]
     private void randomizePlayers()
     {
-        List<NetworkConnection> tmp = new();
-        List<NetworkConnection> connectionsOrder = new();
+        List<int> tmp = new();
+        List<int> connectionsOrder = new();
         foreach (var conn in InstanceFinder.ServerManager.Clients)
-            tmp.Add(conn.Value);
+            tmp.Add(conn.Value.ClientId);
 
         for (int i = 0; i < InstanceFinder.ServerManager.Clients.Count; i++)
         {
@@ -40,12 +44,12 @@ public class TurnManager : NetworkBehaviour
         setOrder(connectionsOrder.ToArray());
     }
     [ObserversRpc]
-    private void setOrder(NetworkConnection[] orders)
+    private void setOrder(int[] orders)
     {
         turnOrder = orders;
         for (int i = 0; i < orders.Length; i++)
         {
-            if (orders[i].Equals(LocalConnection))
+            if (orders[i] == LocalConnection.ClientId)
             {
                 myOrder = i;
                 break;
@@ -53,6 +57,11 @@ public class TurnManager : NetworkBehaviour
             if (i == orders.Length - 1)
                 Debug.LogError("Couldn't find my order!");
         }
+    }
+    [Server]
+    private void startPlacingPhase()
+    {
+
     }
 
     public void endTurn()
@@ -67,7 +76,7 @@ public class TurnManager : NetworkBehaviour
         for (int i = 0; i < turnOrder.Length; i++)
         {
             int tmp = currentTurn + i + 1;
-            if (PlayerManager.playerAvailable(turnOrder[tmp % turnOrder.Length].ClientId))
+            if (PlayerManager.playerAvailable(turnOrder[tmp % turnOrder.Length]))
             {
                 currentTurn = currentTurn + tmp;
                 startNewTurn(currentTurn);
@@ -79,9 +88,15 @@ public class TurnManager : NetworkBehaviour
     private void startNewTurn(int turnNumber)
     {
         currentTurn = turnNumber;
-        Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurn % turnOrder.Length].ClientId]}'s turn");
+        Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurn % turnOrder.Length]]}'s turn");
     }
-
+    [Server]
+    private void playerWithTurnDisconnected(int clientID)
+    {
+        if (GameManager.started)
+            if (clientID == turnOrder[currentTurn % turnOrder.Length])
+                calcNewTurn();
+    }
 
 
 

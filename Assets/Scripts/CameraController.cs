@@ -23,16 +23,25 @@ public class CameraController : MonoBehaviour
 
         }
 
-        if (Input.GetKey(KeyCode.D))
-            Camera.main.transform.localEulerAngles = new Vector3(30, Mathf.LerpAngle(Camera.main.transform.localEulerAngles.y, 35f, Time.deltaTime * 10), 0);
-        else if (Input.GetKey(KeyCode.A))
-            Camera.main.transform.localEulerAngles = new Vector3(30, Mathf.LerpAngle(Camera.main.transform.localEulerAngles.y, -35f, Time.deltaTime * 10), 0);
-        else 
-            Camera.main.transform.localEulerAngles = new Vector3(30, Mathf.LerpAngle(Camera.main.transform.localEulerAngles.y, 0, Time.deltaTime * 10), 0);
+        Vector3 desiredRot = Vector3.right * 30;
+        if (!Input.GetKey(KeyCode.W))
+        {
+            if (Input.GetKey(KeyCode.D))
+                desiredRot = Vector3.right * 30 + Vector3.up * 35;
+            else if (Input.GetKey(KeyCode.A))
+                desiredRot = Vector3.right * 30 - Vector3.up * 35;
+            else if (Input.GetKey(KeyCode.S))
+                desiredRot = Vector3.right * 60;
+        }
 
+        Vector3 rot = Camera.main.transform.localEulerAngles;
+        Camera.main.transform.localEulerAngles = new Vector3(
+            Mathf.LerpAngle(rot.x, desiredRot.x, Time.deltaTime * 10)
+            , Mathf.LerpAngle(rot.y, desiredRot.y, Time.deltaTime * 10)
+            , 0);
 
-        Vector3 desiredRot = CameraPivot.localEulerAngles;
-        desiredRot.x = Input.GetKey(KeyCode.Space) ? 60 : 0;
+        desiredRot = CameraPivot.localEulerAngles;
+        desiredRot.x = Input.GetKey(KeyCode.W) ? 60 : 0;
         CameraPivot.localEulerAngles = Vector3.Lerp(CameraPivot.localEulerAngles, desiredRot, Time.deltaTime * 10);
 
     }

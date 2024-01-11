@@ -15,13 +15,13 @@ public class SteamAPIfail : MonoBehaviour
         directHost.gameObject.SetActive(true);
         directHost.onClick.AddListener(() =>
         {
-            ((Multipass)InstanceFinder.TransportManager.Transport).SetClientTransport<Tugboat>();
-            FindAnyObjectByType<MenuManager>().hostGame();
+            InstanceFinder.TransportManager.GetTransport<Multipass>().SetClientTransport<Tugboat>();
+            FindAnyObjectByType<MenuManager>().hostGame(false);
         });
         directConnectButton.gameObject.SetActive(true);
         directConnectButton.onClick.AddListener(() =>
         {
-            ((Multipass)InstanceFinder.TransportManager.Transport).SetClientTransport<Tugboat>();
+            InstanceFinder.TransportManager.GetTransport<Multipass>().SetClientTransport<Tugboat>();
             InstanceFinder.TransportManager.Transport.StartConnection(false);
         });
 #else

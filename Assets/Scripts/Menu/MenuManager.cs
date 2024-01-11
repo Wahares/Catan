@@ -1,12 +1,13 @@
 using FishNet;
 using FishNet.Managing.Scened;
 using FishNet.Transporting;
+using FishNet.Transporting.Multipass;
 using UnityEngine;
 
 public class MenuManager : MonoBehaviour
 {
     [SerializeField]
-    private CanvasGroup hostGameCanvas,mainGroupCanvas;
+    private CanvasGroup hostGameCanvas, mainGroupCanvas;
 
     private void Awake()
     {
@@ -24,24 +25,26 @@ public class MenuManager : MonoBehaviour
         setGroupActive(hostGameCanvas, false);
     }
 
-    public static void setGroupActive(CanvasGroup group,bool active)
+    public static void setGroupActive(CanvasGroup group, bool active)
     {
-        group.alpha = active?1:0;
+        group.alpha = active ? 1 : 0;
         group.interactable = active;
         group.blocksRaycasts = active;
     }
 
 
     [SerializeField]
-    private ValuePicker mapSizePicker,timeLimitPicker,maxPlayersPicker;
+    private ValuePicker mapSizePicker, timeLimitPicker, maxPlayersPicker;
 
-    public void hostGame()
+    public void hostGame(bool asSteam)
     {
         BoardManager.MapSize = mapSizePicker.value;
         TurnManager.TIME_LIMIT = timeLimitPicker.value;
         TurnManager.DO_LIMIT_TURN = timeLimitPicker.value != 0;
         PlayerManager.CurrentlyMaxPlayers = maxPlayersPicker.value;
-        Debug.Log("Beginning to host a game...");
+        Debug.Log($"Beginning to host {(asSteam?"Steam":"Local")} game...");
+        if (asSteam)
+            InstanceFinder.TransportManager.GetTransport<Multipass>().SetClientTransport<FishySteamworks.FishySteamworks>();
         InstanceFinder.TransportManager.Transport.StartConnection(true);
         InstanceFinder.TransportManager.Transport.StartConnection(false);
     }
@@ -63,13 +66,9 @@ public class MenuManager : MonoBehaviour
         sld.ReplaceScenes = ReplaceOption.All;
         InstanceFinder.SceneManager.LoadGlobalScenes(sld);
     }
-
-
-
-
-
-
-
-
-
+    public void Join(string address)
+    {
+        InstanceFinder.TransportManager.GetTransport<Multipass>().SetClientTransport<FishySteamworks.FishySteamworks>();
+        InstanceFinder.ClientManager.StartConnection(address);
+    }
 }

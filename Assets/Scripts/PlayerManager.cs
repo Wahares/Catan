@@ -3,6 +3,7 @@ using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
+using System;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
@@ -15,7 +16,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField]
     private ReadyController readyController;
 
-    private PlayerAvatarsController avatars;
+    public PlayerAvatarsController avatars { get; private set; }
 
     public static bool playerAvailable(int conID) => instance.playerSteamIDs.ContainsKey(conID);
 
@@ -26,6 +27,9 @@ public class PlayerManager : NetworkBehaviour
     public readonly SyncDictionary<int, ulong> playerSteamIDs = new();
 
     public static PlayerManager instance;
+
+    public static event Action<int> OnPlayerDisconnected;
+
     private void Awake()
     {
         instance = this;
@@ -35,6 +39,8 @@ public class PlayerManager : NetworkBehaviour
         playerSteamIDs.OnChange += OnSteamIDAdded;
         InstanceFinder.ClientManager.OnRemoteConnectionState += PlayerDisconnected;
         InstanceFinder.ClientManager.OnRemoteConnectionState += PlayerConnected;
+        InstanceFinder.ClientManager.OnClientConnectionState += OnDisconnected;
+        OnPlayerDisconnected += removeDisconnectedData;
     }
 
 
@@ -70,15 +76,12 @@ public class PlayerManager : NetworkBehaviour
     {
         base.OnStartClient();
         setupMe((ulong)Steamworks.SteamUser.GetSteamID());
-        if (InstanceFinder.NetworkManager.IsServer)
-            readyController.initialize();
     }
     [ServerRpc(RequireOwnership = false)]
     private void setupMe(ulong steamID, NetworkConnection nc = null)
     {
         playerSteamIDs.Add(nc.ClientId, steamID);
-        if (InstanceFinder.NetworkManager.IsClientOnly)
-            setupLobbyData(nc, CurrentlyMaxPlayers);
+        setupLobbyData(nc, CurrentlyMaxPlayers);
     }
     [TargetRpc]
     public void setupLobbyData(NetworkConnection nc, int maxPlayers)
@@ -87,21 +90,24 @@ public class PlayerManager : NetworkBehaviour
         readyController.initialize();
     }
 
-
+    private void removeDisconnectedData(int clientID)
+    {
+        avatars.disableMe(clientID);
+        playerColors[clientID] = -1;
+        if (playerSteamIDs.ContainsKey(clientID))
+        {
+            Debug.Log(Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)playerSteamIDs[clientID]) + " disconnected");
+            if (InstanceFinder.NetworkManager.IsServer)
+                playerSteamIDs.Remove(clientID);
+        }
+        else
+            Debug.Log($"Connection ID {clientID} disconnected");
+    }
     public void PlayerDisconnected(RemoteConnectionStateArgs args)
     {
         if (args.ConnectionState != RemoteConnectionState.Stopped)
             return;
-        avatars.disableMe(args.ConnectionId);
-        playerColors[args.ConnectionId] = -1;
-        if (playerSteamIDs.ContainsKey(args.ConnectionId))
-        {
-            Debug.Log(Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)playerSteamIDs[args.ConnectionId]) + " disconnected");
-            if (InstanceFinder.NetworkManager.IsServer)
-                playerSteamIDs.Remove(args.ConnectionId);
-        }
-        else
-            Debug.Log($"Connection ID {args.ConnectionId} disconnected");
+        OnPlayerDisconnected?.Invoke(args.ConnectionId);
 
     }
     public void PlayerConnected(RemoteConnectionStateArgs args)
@@ -117,5 +123,29 @@ public class PlayerManager : NetworkBehaviour
             Debug.Log($"Connection ID {args.ConnectionId} has been kicked");
         }
     }
+    private void OnDestroy()
+    {
+        OnPlayerDisconnected = null;
+        InstanceFinder.ClientManager.OnRemoteConnectionState -= PlayerDisconnected;
+        InstanceFinder.ClientManager.OnRemoteConnectionState -= PlayerConnected;
+        InstanceFinder.ClientManager.OnClientConnectionState -= OnDisconnected;
+    }
+
+
+    private void OnDisconnected(ClientConnectionStateArgs args)
+    {
+        if (args.ConnectionState == LocalConnectionState.Stopped)
+        {
+            Debug.Log("Left lobby - loading main maenu...");
+            if (SteamController.InLobby)
+                SteamController.instance.LeaveLobby();
+            if (InstanceFinder.NetworkManager.IsServer)
+                InstanceFinder.ServerManager.StopConnection(true);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+
+
 
 }

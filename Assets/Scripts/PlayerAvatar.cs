@@ -3,13 +3,17 @@ using UnityEngine;
 
 public class PlayerAvatar : MonoBehaviour
 {
-    public SpriteRenderer spriteRenderer;
+    public MeshRenderer render;
+    [field:SerializeField]
+    public PlayerInventoryView inventoryView { get; private set; }
+
     public PlayerAvatar Initialize(ulong steamID)
     {
-        spriteRenderer.sprite = getSteamAvatar(SteamUser.GetSteamID());
+        render.material = new Material(render.material);
+        render.material.mainTexture = getSteamAvatar(SteamUser.GetSteamID());
         return this;
     }
-    public static Sprite getSteamAvatar(CSteamID steamID)
+    public static Texture2D getSteamAvatar(CSteamID steamID)
     {
         int FriendAvatar = SteamFriends.GetLargeFriendAvatar(steamID);
         uint ImageWidth;
@@ -26,8 +30,7 @@ public class PlayerAvatar : MonoBehaviour
                 returnTexture.LoadRawTextureData(Image);
                 returnTexture.Apply();
             }
-            return Sprite.Create(returnTexture, new Rect(0, 0, returnTexture.width, returnTexture.height)
-                , new Vector2(0,0));
+            return returnTexture;
         }
         else
         {

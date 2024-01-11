@@ -1,7 +1,8 @@
 using FishNet;
 using FishNet.Object;
-using Steamworks;
+using FishNet.Transporting.Multipass;
 using System;
+using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
@@ -11,15 +12,19 @@ public class GameManager : NetworkBehaviour
     private void Start()
     {
         instance = this;
-        if (InstanceFinder.NetworkManager.IsServer)
-            OnGameStarted += GetComponent<BoardManager>().createBoard;
     }
     public override void OnStartServer()
     {
         base.OnStartServer();
-        SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, PlayerManager.MaxPlayers);
+        if(InstanceFinder.TransportManager.GetTransport<Multipass>().ClientTransport
+            .Equals(InstanceFinder.TransportManager.GetTransport<FishySteamworks.FishySteamworks>()))
+        SteamController.instance.CreateLobby();
     }
-
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            InstanceFinder.ClientManager.StopConnection();
+    }
     public void startGame()
     {
         startGameRPC();
@@ -29,6 +34,10 @@ public class GameManager : NetworkBehaviour
     {
         OnGameStarted?.Invoke();
         started = true;
+    }
+    private void OnDestroy()
+    {
+        OnGameStarted = null;
     }
 
 }

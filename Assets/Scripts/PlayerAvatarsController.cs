@@ -18,6 +18,8 @@ public class PlayerAvatarsController : NetworkBehaviour
         playerAvatars.Add(ncID, Instantiate(avatarPrefab, Vector3.zero
             , Quaternion.Euler(0, 360 * (playerAvatars.Count / PlayerManager.instance.playerSteamIDs.Count), 0))
             .GetComponent<PlayerAvatar>().Initialize(steamID));
+        if (ncID == LocalConnection.ClientId)
+            playerAvatars[ncID].gameObject.SetActive(false);
     }
     public void moveToPlace(int queueNumber, int queueSize)
     {
@@ -25,7 +27,7 @@ public class PlayerAvatarsController : NetworkBehaviour
     }
     public void disableMe(int ncID)
     {
-        playerAvatars[ncID].spriteRenderer.color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        playerAvatars[ncID].render.material.color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
     }
     public void setupVisiblePlayers()
     {
