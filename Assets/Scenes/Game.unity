@@ -508,6 +508,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad71bbdf70488f041ae2042927c8105e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentPiece: {fileID: 0}
+  pos: {x: 0, y: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -2871,7 +2873,9 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 1950016313}
   tilePrefab: {fileID: 6298734672897206961, guid: db764da53dc886a4ebad7be07addbd64,
     type: 3}
-  borderPrefab: {fileID: 88003461628492737, guid: 5eec526c142afbf4f88fedc30923fe40,
+  borderPrefab: {fileID: 5561501247460083596, guid: 8ab5773396158714face18e6884fd5c1,
+    type: 3}
+  borderFillerPrefab: {fileID: 7411678136397115619, guid: 0cdcee3abfc850f45b3a498703f48049,
     type: 3}
   crossingPrefab: {fileID: 1067624698297985715, guid: b6e2026faa777c6479e3ae9ed4415f0b,
     type: 3}
@@ -3014,10 +3018,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 30387472f1a331841b887586aa3f576f, type: 2}
   - {fileID: 11400000, guid: d9f2d9a814553484394041d9df667429, type: 2}
   - {fileID: 11400000, guid: 0febd8ae0380724459a6696a21aeb052, type: 2}
-  localInventory: {fileID: 2123251264}
+  <localInventory>k__BackingField: {fileID: 2123251264}
   clientID: 0
   cardID: 0
   delta: 0
+  flyingCardPrefab: {fileID: 0}
 --- !u!1 &1992030319
 GameObject:
   m_ObjectHideFlags: 0
@@ -3480,6 +3485,7 @@ MonoBehaviour:
   handPivot: {fileID: 919711906}
   persistentPivot: {fileID: 1505374705}
   specialPivot: {fileID: 1597305358}
+  selectedCards: []
 --- !u!1001 &8471483120039895160
 PrefabInstance:
   m_ObjectHideFlags: 0

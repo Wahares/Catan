@@ -66,7 +66,11 @@ public class DiceController : NetworkBehaviour
         if (currentRoll != null)
         {
             StopCoroutine(currentRoll);
-            OnDiceRolled?.Invoke(bufferedBasic, bufferedRed, actionFromDiceNumber(bufferedAction));
+            try
+            {
+                OnDiceRolled?.Invoke(bufferedBasic, bufferedRed, actionFromDiceNumber(bufferedAction));
+            }
+            catch (System.Exception e) { Debug.LogException(e); }
         }
         currentRoll = StartCoroutine(diceRollView(basic, red, action));
     }

@@ -13,7 +13,7 @@ public class BoardManager : NetworkBehaviour
     public static int MapSize = 3;
 
     [SerializeField]
-    private GameObject tilePrefab, borderPrefab, crossingPrefab, roadPrefab;
+    private GameObject tilePrefab, borderPrefab, borderFillerPrefab, crossingPrefab, roadPrefab;
     [SerializeField]
     private Transform boardRoot;
 
@@ -104,9 +104,22 @@ public class BoardManager : NetworkBehaviour
         rollActions = new();
 
 
+        Vector3 borderPos = -Vector3.right * HEX_FACTOR * mapSize;
+        float borderAngle = 30;
+        for (int i = 0; i < TilesInRing(mapSize); i++)
+        {
+            if (i % mapSize == 0)
+            {
+                Instantiate(borderFillerPrefab, borderPos, Quaternion.Euler(0, i / MapSize * 60, 0)).transform.parent = boardRoot;
+                borderAngle -= 60;
+            }
+            else
+                Instantiate(borderPrefab, borderPos, Quaternion.Euler(0, i / MapSize * 60, 0)).transform.parent = boardRoot;
 
-        for (int i = 0; i < 6; i++)
-            Instantiate(borderPrefab, Vector3.zero, Quaternion.Euler(-90, 0, 30 + i * 60)).transform.parent = boardRoot;
+            borderPos.z += Mathf.Cos(borderAngle * Mathf.Deg2Rad) * HEX_FACTOR;
+            borderPos.x -= Mathf.Sin(borderAngle * Mathf.Deg2Rad) * HEX_FACTOR;
+        }
+
 
 
         int tileID = 0;
@@ -116,7 +129,7 @@ public class BoardManager : NetworkBehaviour
             Vector3 pos = -Vector3.right * HEX_FACTOR * ring;
             float angle = 30;
 
-            for (int index = 0; index < Mathf.Abs(6 * ring - 0.5f) + 0.5f; index++)
+            for (int index = 0; index < TilesInRing(ring); index++)
             {
                 GameObject go = Instantiate(tilePrefab, pos, Quaternion.Euler(-90, 0, 180));
                 go.transform.parent = boardRoot;
@@ -130,7 +143,14 @@ public class BoardManager : NetworkBehaviour
 
 
                 if (ring == 0)
+                {
                     go.GetComponent<TileController>().Initialize(TileType.Desert, 7, mapPos);
+                    if (NetworkManager?.IsServer ?? true)
+                    {
+                        rollActions.Add(7, null);
+                        rollActions[7] += go.GetComponent<TileController>().OnNumberRolled;
+                    }
+                }
                 else
                 {
                     int diceNum = diceNums[tileID];
