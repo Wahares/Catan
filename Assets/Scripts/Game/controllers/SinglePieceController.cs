@@ -2,8 +2,8 @@ using UnityEngine;
 
 public abstract class SinglePieceController : MonoBehaviour
 {
-    public int pieceOwnerID;
-    public Vector2Int codedPos;
+    public int pieceOwnerID { get; protected set; }
+    public Vector2Int codedPos { get; protected set; }
     [SerializeField]
     private Material[] materials;
     [SerializeField]
@@ -15,6 +15,7 @@ public abstract class SinglePieceController : MonoBehaviour
         pieceOwnerID = ownerID;
         render.material = new Material(materials[PlayerManager.instance.playerColors[ownerID]]);
     }
+    public virtual void OnTileInvoked(TileController source) { }
 }
 public enum PieceType
 {

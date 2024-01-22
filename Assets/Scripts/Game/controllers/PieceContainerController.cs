@@ -16,7 +16,6 @@ where T1 : SinglePieceController
 
     public virtual void SetPiece(T1 pieceController)
     {
-
         if (currentPiece != null)
             currentPiece.transform.DOScale(0, 0.5f).OnComplete(() => Destroy(currentPiece.gameObject));
         currentPiece = pieceController;
@@ -24,7 +23,9 @@ where T1 : SinglePieceController
             return;
         currentPiece.transform.localPosition = Vector3.up;
         currentPiece.transform.localEulerAngles = Vector3.zero;
+        currentPiece.transform.localScale = Vector3.zero;
         currentPiece.transform.DOLocalMoveY(0, 0.25f);
+        currentPiece.transform.DOScale(Vector3.one, 0.15f);
     }
 
 

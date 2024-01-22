@@ -35,16 +35,13 @@ public class TileController : MonoBehaviour
         }
         transform.DOKill();
         transform.DOScaleZ(3, 0.5f).SetEase(Ease.InSine).OnComplete(() => transform.DOScaleZ(1, 0.5f).SetEase(Ease.OutSine));
-
-
-
-
-
+        foreach (var cross in getNearbyCrossings())
+            cross.TileNumberRolled(this);
     }
 
-    public List<CrossingController> getNearbyPieces()
+    public List<CrossingController> getNearbyCrossings()
     {
-        return Physics.OverlapSphere(transform.position, 2, LayerMask.GetMask("Piece"), QueryTriggerInteraction.Collide)
+        return Physics.OverlapSphere(transform.position, 2, LayerMask.GetMask("Crossing"), QueryTriggerInteraction.Collide)
             .Select(p => p.GetComponent<CrossingController>())
             .Where(p => p != null).ToList();
     }

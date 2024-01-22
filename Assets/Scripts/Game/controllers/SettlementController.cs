@@ -5,7 +5,7 @@ public class SettlementController : SinglePieceController
 {
     public override PieceType pieceType => PieceType.Settlement;
     
-    public virtual void TileRolled(TileController tc)
+    public override void OnTileInvoked(TileController tc)
     {
         NormalCard card = null;
         foreach (var item in PlayerInventoriesManager.instance.availableCards)

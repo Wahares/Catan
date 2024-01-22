@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1067624698297985715
+--- !u!1 &162182086876510607
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1700052415999980903}
-  - component: {fileID: 8867856508194515437}
-  - component: {fileID: 1428064755602045539}
-  m_Layer: 6
-  m_Name: Crossing
+  - component: {fileID: 7433305179962277647}
+  - component: {fileID: 2351192888353557222}
+  - component: {fileID: 5658905357188027513}
+  m_Layer: 7
+  m_Name: RoadContr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1700052415999980903
+--- !u!4 &7433305179962277647
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1067624698297985715}
+  m_GameObject: {fileID: 162182086876510607}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -33,27 +33,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8867856508194515437
+--- !u!114 &2351192888353557222
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1067624698297985715}
+  m_GameObject: {fileID: 162182086876510607}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acc6e2a50df133348bdb03b77e6cf6cc, type: 3}
+  m_Script: {fileID: 11500000, guid: ad71bbdf70488f041ae2042927c8105e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   currentPiece: {fileID: 0}
   pos: {x: 0, y: 0}
---- !u!135 &1428064755602045539
-SphereCollider:
+--- !u!65 &5658905357188027513
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1067624698297985715}
+  m_GameObject: {fileID: 162182086876510607}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -62,9 +62,9 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.25
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.15, y: 0.1, z: 0.45}
+  m_Center: {x: 0, y: 0.05, z: 0}
