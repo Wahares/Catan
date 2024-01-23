@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69517437c5bafd74188065705b04146c, type: 3}
+  m_Name: AllCards
+  m_EditorClassIdentifier: 
+  <equipableCards>k__BackingField:
+  - {fileID: 11400000, guid: 0bc51dc6c431edb4db15ae518a2cbe16, type: 2}
+  - {fileID: 11400000, guid: 39f794c17552d2c4b8dc3a4b597ec734, type: 2}
+  - {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}
+  - {fileID: 11400000, guid: 30387472f1a331841b887586aa3f576f, type: 2}
+  - {fileID: 11400000, guid: 0a264f5f53672254a9cdc887fbb64a6e, type: 2}
+  - {fileID: 11400000, guid: 3800e0562d4c8a94582f2eb03735bf49, type: 2}
+  - {fileID: 11400000, guid: c4f3438f9b60c3641aad3f0c8ae3ed59, type: 2}
+  - {fileID: 11400000, guid: d9f2d9a814553484394041d9df667429, type: 2}
+  - {fileID: 11400000, guid: 0febd8ae0380724459a6696a21aeb052, type: 2}
+  - {fileID: 11400000, guid: 60395dda44e7525429f3fa1b2da620fb, type: 2}
+  <buildingRecipes>k__BackingField:
+  - {fileID: 11400000, guid: 1d4b62b055b0c424eb8f164a42d222f4, type: 2}
+  <tradingRecipes>k__BackingField:
+  - {fileID: 11400000, guid: cc1ea738d35a4404cb114350503b36d8, type: 2}

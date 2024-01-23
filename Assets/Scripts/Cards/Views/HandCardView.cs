@@ -25,16 +25,18 @@ public class HandCardView : CardView
     private HandCardEffect hce;
     public void SelectDeselect()
     {
-        if (piv.selectedCards.Contains(this))
+        if (piv.selectedCardsViews.Contains(this))
         {
             hce.selected = false;
-            piv.selectedCards.Remove(this);
+            piv.selectedCardsViews.Remove(this);
+            piv.OnSelectedCardsChanged();
             transform.DOLocalMoveY(0, 0.5f);
         }
         else
         {
             hce.selected = true;
-            piv.selectedCards.Add(this);
+            piv.selectedCardsViews.Add(this);
+            piv.OnSelectedCardsChanged();
             transform.DOLocalMoveY(1, 0.5f);
         }
     }

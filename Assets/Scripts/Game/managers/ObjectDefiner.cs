@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,11 +5,14 @@ public class ObjectDefiner : MonoBehaviour
 {
     public static ObjectDefiner instance { get; private set; }
 
-    [field: SerializeField]
-    public List<CardSO> availableCards { get; private set; }
+    [SerializeField]
+    private ResourcesContainer container;
 
-    [field: SerializeField]
-    public List<CardSO> availableBuildingRecipes { get; private set; }
+
+    public List<CardSO> equipableCards => container.equipableCards;
+
+    public List<BuildingRecipe> availableBuildingRecipes => container.buildingRecipes;
+    public List<TradingOption> availableTradings => container.tradingRecipes;
 
 
     private void Awake()

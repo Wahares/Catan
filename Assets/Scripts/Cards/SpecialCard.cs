@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-[CreateAssetMenu(fileName = "SpecialCard", menuName = "Cards/Special Card")]
+[CreateAssetMenu(fileName = "SpecialCard", menuName = "Cards/Equipable/Special Card")]
 public class SpecialCard : CardSO
 {
     [field: SerializeField]

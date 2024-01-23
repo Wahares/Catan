@@ -10,7 +10,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
 
     public Dictionary<int, int[]> playerInventories = new();
 
-    public List<CardSO> availableCards => ObjectDefiner.instance.availableCards;
+    public List<CardSO> availableCards => ObjectDefiner.instance.equipableCards;
 
     [field: SerializeField]
     public PlayerInventoryView localInventory { get; private set; }

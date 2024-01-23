@@ -6,7 +6,7 @@ public abstract class CardView : MonoBehaviour
     protected MeshRenderer render;
     public int ID { get; private set; }
 
-    protected CardSO item;
+    public CardSO item { get; private set; }
 
     public virtual void Initialize(int ID)
     {

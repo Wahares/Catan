@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "BuildingRecipe", menuName = "Cards/Building Recipe")]
@@ -5,12 +6,12 @@ public class BuildingRecipe : RecipedCard
 {
     public GameObject piece, piecePreview;
     public int maxOnBoard;
-    public override bool CanUse(int[] inventory, int clientID)
+    public override bool CanUse(List<CardSO> cards, int clientID)
     {
         PieceType pieceType = piece.GetComponent<SinglePieceController>().pieceType;
-        return BoardManager.instance.numberOfPieces(clientID,pieceType)<maxOnBoard && base.CanUse(inventory,clientID);
+        return BoardManager.instance.numberOfPieces(clientID,pieceType)<maxOnBoard && base.CanUse(cards,clientID);
     }
-    public virtual void Use()
+    public override void OnUsed()
     {
 
     }

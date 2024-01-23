@@ -1,8 +1,8 @@
 using FishNet;
 using UnityEngine;
 using System.Collections.Generic;
-using FishNet.Connection;
 using FishNet.Object;
+using System;
 
 public class TurnManager : NetworkBehaviour
 {
@@ -15,6 +15,10 @@ public class TurnManager : NetworkBehaviour
     public static int[] turnOrder;
 
     public int myOrder;
+
+    public static Action<int> OnAnyTurnStarted;
+    public static Action OnMyTurnStarted;
+
 
     private void Awake()
     {
@@ -35,7 +39,7 @@ public class TurnManager : NetworkBehaviour
 
         for (int i = 0; i < InstanceFinder.ServerManager.Clients.Count; i++)
         {
-            int rand = Random.Range(0, tmp.Count);
+            int rand = UnityEngine.Random.Range(0, tmp.Count);
             connectionsOrder.Add(tmp[rand]);
             tmp.RemoveAt(rand);
         }
@@ -87,6 +91,9 @@ public class TurnManager : NetworkBehaviour
     {
         currentTurn = turnNumber;
         Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurn % turnOrder.Length]]}'s turn");
+        OnAnyTurnStarted?.Invoke(turnOrder[currentTurn % turnOrder.Length]);
+        if (turnOrder[currentTurn % turnOrder.Length] == LocalConnection.ClientId)
+            OnMyTurnStarted?.Invoke();
     }
     [Server]
     private void playerWithTurnDisconnected(int clientID)

@@ -18,8 +18,9 @@ public class PlayerInventoryView : MonoBehaviour
     private bool isMine = false;
 
 
-    public List<HandCardView> selectedCards = new();
+    public List<CardView> selectedCardsViews = new();
 
+    private PlayerCardsOptionsController pcoc;
 
 
     public void initialize(bool isMine)
@@ -122,4 +123,6 @@ public class PlayerInventoryView : MonoBehaviour
             cards[i].transform.localPosition = persistentPivot.right * i;
         }
     }
+
+    public void OnSelectedCardsChanged() => pcoc.OnSelectedChanged();
 }
