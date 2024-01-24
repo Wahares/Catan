@@ -9,7 +9,12 @@ public class ReadyController : MonoBehaviour
     private List<Button> colorButtons;
     [SerializeField]
     private Button readyButton;
-    
+
+    [SerializeField]
+    private GameObject loadingScreen;
+
+    private void Awake() { loadingScreen.SetActive(true); }
+
     public void initialize()
     {
         for (int i = 0; i < PlayerManager.MaxPlayers - PlayerManager.CurrentlyMaxPlayers; i++)
@@ -24,6 +29,7 @@ public class ReadyController : MonoBehaviour
 
         readyButton.onClick.AddListener(() => { readyClicked(); });
         setAvailableColors();
+        Destroy(loadingScreen);
     }
     private int currentColorID;
 

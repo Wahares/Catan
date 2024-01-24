@@ -131,6 +131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   render: {fileID: 1661070748415840638}
+  hce: {fileID: 1945720452582909558}
 --- !u!65 &6471448641840904323
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -165,3 +166,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 6134242213439365734}
+  selected: 0
+  cardView: {fileID: 8634130797246077658}

@@ -84,6 +84,8 @@ public class PlayerInventoriesManager : NetworkBehaviour
     [ContextMenu("change cards")]
     private void chaaaaa()
     {
+        if (!GameManager.started)
+            return;
         ChangeCardQuantity(clientID, cardID, delta);
     }
 

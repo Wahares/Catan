@@ -15,6 +15,8 @@ public class PlayerCardsOptionsController : MonoBehaviour
     private void Awake()
     {
         possibleExchanges = new();
+        visibleButtons = new();
+        selectedCards = new();
     }
     private void Start()
     {
@@ -24,7 +26,7 @@ public class PlayerCardsOptionsController : MonoBehaviour
 
     private List<RecipedCard> possibleExchanges;
 
-    private List<CardSO> selectedCards = new();
+    private List<CardSO> selectedCards;
 
     private Dictionary<RecipedCard, CardExchangeButton> visibleButtons;
 
@@ -45,15 +47,12 @@ public class PlayerCardsOptionsController : MonoBehaviour
             Destroy(visibleButtons[obj].gameObject);
             visibleButtons.Remove(obj);
         }
-
-
-
-        visibleButtons.Clear();
         foreach (var exchange in possibleExchanges)
         {
             if (visibleButtons.ContainsKey(exchange))
                 continue;
             GameObject go = Instantiate(buttonPrefab, buttonsPivot);
+            go.GetComponent<CardExchangeButton>().Initialize(exchange);
             visibleButtons.Add(exchange, go.GetComponent<CardExchangeButton>());
         }
         int i = 0;

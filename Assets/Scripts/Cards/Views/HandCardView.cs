@@ -37,7 +37,7 @@ public class HandCardView : CardView
             hce.selected = true;
             piv.selectedCardsViews.Add(this);
             piv.OnSelectedCardsChanged();
-            transform.DOLocalMoveY(1, 0.5f);
+            transform.DOLocalMoveY(0.3f, 0.5f);
         }
     }
 

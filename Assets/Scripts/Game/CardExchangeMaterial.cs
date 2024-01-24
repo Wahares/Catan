@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CardExchangeMaterial : MonoBehaviour
 {
     [SerializeField]
-    private SpriteRenderer icon;
+    private Image icon;
     [SerializeField]
-    private TMPro.TextMeshPro count;
+    private TMPro.TextMeshProUGUI count;
 
     public void Initialize(RecipedCard.Pair material)
     {

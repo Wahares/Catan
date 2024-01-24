@@ -94,6 +94,7 @@ public class BoardManager : NetworkBehaviour
         return true;
     }
     public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
+    public void DoBanditsEffect() { }
 
     [ObserversRpc]
     public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)

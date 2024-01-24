@@ -27,16 +27,15 @@ public class CursorController : MonoBehaviour
                 mask = LayerMask.GetMask("Tile");
                 break;
         }
-        if (Physics.SphereCast(cam.transform.position
-            , 0.25f
-            , cam.ScreenToWorldPoint(Input.mousePosition)
+        if (Physics.SphereCast(cam.ScreenPointToRay(Input.mousePosition)
+            , 0.1f
             , out RaycastHit hit
-            , mask
             , 999
+            , mask
             , QueryTriggerInteraction.Collide))
         {
 
-
+            Debug.DrawLine(hit.transform.position, hit.transform.position + Vector3.up);
 
         }
     }

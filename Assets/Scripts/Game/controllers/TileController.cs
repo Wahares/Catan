@@ -33,8 +33,16 @@ public class TileController : MonoBehaviour
             GameManager.instance.HandleBandits();
             return;
         }
-        transform.DOKill();
+        if (BoardManager.instance.IsTileBlockedByBandits(mapPos))
+        {
+            BoardManager.instance.DoBanditsEffect();
+            return;
+        }
+
+
+        transform.DOComplete();
         transform.DOScaleZ(3, 0.5f).SetEase(Ease.InSine).OnComplete(() => transform.DOScaleZ(1, 0.5f).SetEase(Ease.OutSine));
+        
         foreach (var cross in getNearbyCrossings())
             cross.TileNumberRolled(this);
     }

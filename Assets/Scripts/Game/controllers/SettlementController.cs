@@ -15,6 +15,9 @@ public class SettlementController : SinglePieceController
                 card = item as NormalCard;
                 break;
             }
+        }
+        if (card == null)
+        {
             Debug.LogError("Unable to find card for: " + tc.type);
             return;
         }

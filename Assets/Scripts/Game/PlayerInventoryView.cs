@@ -26,6 +26,8 @@ public class PlayerInventoryView : MonoBehaviour
     public void initialize(bool isMine)
     {
         this.isMine = isMine;
+        if(isMine)
+            pcoc = GetComponent<PlayerCardsOptionsController>();
     }
 
     private void revalidateViews()
