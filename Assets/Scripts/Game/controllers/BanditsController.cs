@@ -13,9 +13,6 @@ public class BanditsController : NetworkBehaviour
 
     private void Rolled()
     {
-        if (TurnManager.currentPhase == Phase.BanditsMoreThan7)
-            TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, PlayerManager.numOfPlayers);
-        else
-            TurnManager.instance.changePhaseOnServer(Phase.BanditsMoreThan7);
+        TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, PlayerManager.numOfPlayers, false);
     }
 }

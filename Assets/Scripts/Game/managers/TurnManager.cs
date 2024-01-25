@@ -10,23 +10,27 @@ public class TurnManager : NetworkBehaviour
     public static int TIME_LIMIT;
     public static bool DO_LIMIT_TURN;
 
-    public static int currentTurn;
     public static TurnManager instance;
 
     public static int[] turnOrder;
 
     public int myOrder;
 
-    public static Action<Phase> OnPhaseChanged;
 
-    public static Action<int> OnAnyTurnStarted;
+    public static Action<int, Phase> OnAnyTurnStarted;
     public static Action OnMyTurnStarted;
     public static Action OnMyTurnEnded;
 
 
-    public static bool isMyTurn => currentTurn % turnOrder.Length == instance.myOrder;
 
+    public static bool isMyTurn => currentTurnID == instance.myOrder;
+
+    public static int currentTurnID;
     public static Phase currentPhase { get; private set; }
+
+
+    [field: SerializeField]
+    public UnityEngine.UI.Button EndTurnButton { get; private set; }
 
 
     private void Awake()
@@ -36,6 +40,8 @@ public class TurnManager : NetworkBehaviour
             return;
         BoardManager.OnBoardInitialized += randomizePlayers;
         PlayerManager.OnPlayerDisconnected += playerWithTurnDisconnected;
+        EndTurnButton.gameObject.SetActive(false);
+        EndTurnButton.onClick.AddListener(() => { endTurn(); EndTurnButton.gameObject.SetActive(false); });
     }
     [Server]
     private void randomizePlayers()
@@ -70,26 +76,19 @@ public class TurnManager : NetworkBehaviour
         if (InstanceFinder.NetworkManager.IsServer)
             startPlacingPhase();
     }
+
     [Server]
     private void startPlacingPhase()
     {
-        currentTurn = -1;
-        EnqueuePhase(Phase.PlacingVillages, PlayerManager.instance.playerColors.Count*2);
+        for (int i = 0; i < turnOrder.Length; i++)
+            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i,true);
+        for (int i = 0; i < turnOrder.Length; i++)
+            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i,true);
+        EnqueuePhase(Phase.BeforeRoll, 0,true);
+
         calcNewTurn();
     }
-    [Server]
-    public void changePhaseOnServer(Phase newPhase)
-    {
-        changePhase(newPhase);
-    }
 
-    [ObserversRpc]
-    private void changePhase(Phase newPhase)
-    {
-        currentPhase = newPhase;
-        Debug.Log("Phase changed to: " + newPhase);
-        OnPhaseChanged?.Invoke(newPhase);
-    }
 
 
     public void endTurn()
@@ -104,15 +103,15 @@ public class TurnManager : NetworkBehaviour
     {
         foreach (var player in ServerManager.Clients)
         {
-            if (turnOrder[currentTurn % turnOrder.Length] == player.Key)
+            if (turnOrder[currentTurnID] == player.Key)
             {
-                EndMyTurn(player.Value);
+                EndPlayersTurn(player.Value);
                 break;
             }
         }
     }
     [TargetRpc]
-    private void EndMyTurn(NetworkConnection nc)
+    private void EndPlayersTurn(NetworkConnection nc)
     {
         endTurn();
     }
@@ -122,60 +121,57 @@ public class TurnManager : NetworkBehaviour
 
 
     [Serializable]
-    public class enPh { public Phase phase; public int ttl; }
-    public List<enPh> enqueuedPhases = new();
-    public void EnqueuePhase(Phase ph, int ttl)
+    public class TurnConfiguration
     {
-        enqueuedPhases.Add(new enPh() { phase = ph, ttl = ttl });
+        public Phase phase; public int turnID;
+        public TurnConfiguration(Phase phase, int turnID) { this.phase = phase; this.turnID = turnID; }
+    }
+    public List<TurnConfiguration> enqueuedPhases = new();
+    public void EnqueuePhase(Phase ph, int turnID, bool toBack)
+    {
+        if (toBack)
+            enqueuedPhases.Add(new TurnConfiguration(ph, turnID));
+        else
+            enqueuedPhases.Insert(0,new TurnConfiguration(ph, turnID));
     }
     [ServerRpc(RequireOwnership = false)]
     public void calcNewTurn()
     {
-        for (int i = 0; i < turnOrder.Length; i++)
+
+        for (int i = 0; i < 999; i++)
         {
-            int tmp = currentTurn + 1 + i;
-            if (PlayerManager.playerAvailable(turnOrder[tmp % turnOrder.Length]))
+            int nextTurnID = (currentTurnID + 1) % turnOrder.Length;
+            if (enqueuedPhases.Count == 0)
+                enqueuedPhases.Add(new TurnConfiguration(Phase.BeforeRoll, nextTurnID));
+
+            TurnConfiguration tc = enqueuedPhases[0];
+            enqueuedPhases.RemoveAt(0);
+
+            if (PlayerManager.playerAvailable(turnOrder[tc.turnID]))
             {
-                if (enqueuedPhases.Count > 0)
-                {
-                    int ttmp = 1 + i;
-                    while (ttmp > 0 && enqueuedPhases.Count != 0)
-                    {
-                        if (ttmp > enqueuedPhases[0].ttl)
-                        {
-                            ttmp = ttmp - enqueuedPhases[0].ttl;
-                            enqueuedPhases.RemoveAt(0);
-                        }
-                        else
-                        {
-                            enqueuedPhases[0].ttl -= ttmp;
-                            ttmp = 0;
-                        }
-                    }
-                }
-
-                if (enqueuedPhases.Count == 0)
-                {
-                    if (currentPhase != Phase.BeforeRoll)
-                        changePhase(Phase.BeforeRoll);
-                }
-                else
-                if (currentPhase != enqueuedPhases[0].phase)
-                    changePhase(enqueuedPhases[0].phase);
-
-                currentTurn = tmp;
-                startNewTurn(currentTurn);
+                currentTurnID = tc.turnID;
+                currentPhase = tc.phase;
+                startNewTurn(tc.turnID, tc.phase);
                 break;
             }
+
+            if (i == 998)
+                Debug.LogError("Endless loop!!!!");
         }
+
     }
 
     [ObserversRpc]
-    private void startNewTurn(int turnNumber)
+    private void startNewTurn(int turnID, Phase phase)
     {
-        currentTurn = turnNumber;
-        Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurn % turnOrder.Length]]}'s turn");
-        OnAnyTurnStarted?.Invoke(turnOrder[currentTurn % turnOrder.Length]);
+        currentTurnID = turnID;
+        currentPhase = phase;
+        try
+        {
+            Debug.Log($"It's {Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]])}'s turn at {phase} phase");
+        }
+        catch { Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]]}'s turn at {phase} phase"); }
+        OnAnyTurnStarted?.Invoke(turnOrder[currentTurnID], phase);
         if (isMyTurn)
             OnMyTurnStarted?.Invoke();
     }
@@ -183,12 +179,11 @@ public class TurnManager : NetworkBehaviour
     private void playerWithTurnDisconnected(int clientID)
     {
         if (GameManager.started)
-            if (clientID == turnOrder[currentTurn % turnOrder.Length])
+            if (clientID == turnOrder[currentTurnID])
                 calcNewTurn();
     }
 
 
 
-
 }
-public enum Phase { GettingReady, PlacingVillages, BeforeRoll, CasualRound, BanditsMoreThan7, Barbarians }
+public enum Phase { GettingReady, PlacingVillages, BeforeRoll, CasualRound, BanditsMoreThan7, Barbarians,GettingSpecialCards }

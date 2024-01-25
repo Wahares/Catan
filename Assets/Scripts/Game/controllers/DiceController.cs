@@ -43,16 +43,18 @@ public class DiceController : NetworkBehaviour
         {
             BoardManager.instance.moveBarbariansOnServer();
             if (BoardManager.instance.currentBarbariansPos % (BoardManager.instance.numberOfBarbariansFields + 1) == 0)
-                TurnManager.instance.EnqueuePhase(Phase.Barbarians, PlayerManager.numOfPlayers);
+                for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+                    TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, true);
         }
-        if(basic+red == 7)
-            TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, PlayerManager.numOfPlayers);
+        if (basic + red == 7)
+            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+                TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, i, true);
 
-        if (TurnManager.instance.enqueuedPhases.Count > 0)
-            TurnManager.instance.changePhaseOnServer(TurnManager.instance.enqueuedPhases[0].phase);
-        else
-            TurnManager.instance.changePhaseOnServer(Phase.CasualRound);
+        for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+            TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, true);
 
+        TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, true);
+        TurnManager.instance.endTurn();
     }
 
 
@@ -77,7 +79,7 @@ public class DiceController : NetworkBehaviour
     {
         if (!TurnManager.isMyTurn)
             return;
-        if(TurnManager.currentPhase != Phase.BeforeRoll)
+        if (TurnManager.currentPhase != Phase.BeforeRoll)
             return;
         rollDice();
         rollButton.gameObject.SetActive(false);

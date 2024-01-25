@@ -17,7 +17,6 @@ public class BuildingManager : NetworkBehaviour
         CursorController.Hovering += snapToCursor;
         CursorController.OnClicked += finalize;
         CursorController.OnRightClicked += cancelBuilding;
-        TurnManager.OnPhaseChanged += PhaseChanged;
         TurnManager.OnMyTurnEnded += resetBuilding;
     }
     private void OnDestroy()
@@ -25,7 +24,6 @@ public class BuildingManager : NetworkBehaviour
         CursorController.Hovering -= snapToCursor;
         CursorController.OnClicked -= finalize;
         CursorController.OnRightClicked -= cancelBuilding;
-        TurnManager.OnPhaseChanged -= PhaseChanged;
         TurnManager.OnMyTurnEnded -= resetBuilding;
     }
     public void BeginBuilding(BuildingRecipe br)
@@ -33,11 +31,6 @@ public class BuildingManager : NetworkBehaviour
         cc.currentFocusPieceType = br.piece.GetComponent<SinglePieceController>().placeType;
         Instantiate(br.piecePreview, preview).transform.localPosition = Vector3.zero;
         currentRecipe = br;
-    }
-    private void PhaseChanged(Phase phase)
-    {
-        if (phase != Phase.CasualRound)
-            resetBuilding();
     }
 
     private void snapToCursor(Vector2Int? pos, PiecePlaceType type)
@@ -121,7 +114,7 @@ public class BuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void BuildPiece(Vector2Int pos, int brID, int clientID)
     {
-        if (TurnManager.turnOrder[TurnManager.currentTurn % TurnManager.turnOrder.Length] == clientID)
+        if (TurnManager.turnOrder[TurnManager.currentTurnID] == clientID)
             BuildPieceOnClients(pos, brID, clientID);
 
         BuildingRecipe br = ObjectDefiner.instance.availableBuildingRecipes[brID];

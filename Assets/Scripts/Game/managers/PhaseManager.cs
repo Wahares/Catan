@@ -11,6 +11,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted += OnMyBarbariansPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyCasualPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyBanditsPhaseTurn;
+        TurnManager.OnMyTurnStarted += OnMySpecialCardsPhaseTurn;
     }
     private void OnDestroy()
     {
@@ -19,6 +20,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted -= OnMyBarbariansPhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMyCasualPhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMyBanditsPhaseTurn;
+        TurnManager.OnMyTurnStarted -= OnMySpecialCardsPhaseTurn;
     }
 
 
@@ -27,7 +29,7 @@ public class PhaseManager : MonoBehaviour
     {
         if (TurnManager.currentPhase != Phase.PlacingVillages)
             return;
-        if (TurnManager.currentTurn < TurnManager.turnOrder.Length)
+        if (BoardManager.instance.numberOfPieces(InstanceFinder.ClientManager.Connection.ClientId,PieceType.Settlement) == 0)
             BuildingManager.instance.BeginBuilding(settlementBR);
         else
             BuildingManager.instance.BeginBuilding(cityBR);
@@ -46,12 +48,16 @@ public class PhaseManager : MonoBehaviour
             return;
 
         //need to destroy city
+        TurnManager.instance.endTurn();
 
     }
+
     public void OnMyCasualPhaseTurn()
     {
         if (TurnManager.currentPhase != Phase.CasualRound)
             return;
+        TurnManager.instance.EndTurnButton.gameObject.SetActive(true);
+
     }
     public void OnMyBanditsPhaseTurn()
     {
@@ -61,8 +67,15 @@ public class PhaseManager : MonoBehaviour
             < PlayerInventoriesManager.instance.getPlayersCardsInHand(InstanceFinder.ClientManager.Connection.ClientId).Count)
         {
             Debug.Log("You have too many cards!");
+            TurnManager.instance.endTurn();
         }
         else
             TurnManager.instance.endTurn();
+    }
+    public void OnMySpecialCardsPhaseTurn()
+    {
+        if (TurnManager.currentPhase != Phase.GettingSpecialCards)
+            return;
+        TurnManager.instance.endTurn();
     }
 }
