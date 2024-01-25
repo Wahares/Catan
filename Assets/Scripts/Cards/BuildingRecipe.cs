@@ -13,6 +13,6 @@ public class BuildingRecipe : RecipedCard
     }
     public override void OnUsed()
     {
-
+        BuildingManager.instance.BeginBuilding(this);
     }
 }

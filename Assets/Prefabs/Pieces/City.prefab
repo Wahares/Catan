@@ -31,7 +31,7 @@ Transform:
   m_Children:
   - {fileID: 1366185183282767970}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5360576284140500401
 MonoBehaviour:
@@ -45,8 +45,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf088bdf2900aa4c8855b36fa7b626b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materials: []
-  render: {fileID: 0}
+  materials:
+  - {fileID: 2100000, guid: 168f326a94e4cbc42b84760f12c357a5, type: 2}
+  - {fileID: 2100000, guid: 5ad725c68f8920d4aac12c38cbc29657, type: 2}
+  - {fileID: 2100000, guid: 90af35c1e060f6f47be01b23ea6e6f2e, type: 2}
+  - {fileID: 2100000, guid: 45cda9edfb3b7cf499e2fd9cec080788, type: 2}
+  - {fileID: 2100000, guid: 424e808cc84c2394c83b7e8d773ef19f, type: 2}
+  - {fileID: 2100000, guid: bc97ab2a1b511bf418e3a8e4f0ea207d, type: 2}
+  - {fileID: 2100000, guid: aa5b48a83933b564e90d909f219dfd65, type: 2}
+  - {fileID: 2100000, guid: 0e643d8a90690cf45a5050bc40c22fa8, type: 2}
+  render: {fileID: 197743812941402893}
 --- !u!1001 &1548978043710984073
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -125,6 +133,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 52e17a21bc6ade04da083f18c2cfece1, type: 3}
+--- !u!23 &197743812941402893 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 52e17a21bc6ade04da083f18c2cfece1,
+    type: 3}
+  m_PrefabInstance: {fileID: 1548978043710984073}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1366185183282767970 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 52e17a21bc6ade04da083f18c2cfece1,

@@ -9,13 +9,16 @@ public abstract class SinglePieceController : MonoBehaviour
     [SerializeField]
     protected MeshRenderer render;
     public abstract PieceType pieceType { get; }
-    public virtual void Initialize(int ownerID,Vector2Int codedPos)
+    public abstract PiecePlaceType placeType { get; }
+    public virtual void Initialize(int ownerID, Vector2Int codedPos)
     {
         this.codedPos = codedPos;
         pieceOwnerID = ownerID;
         render.material = new Material(materials[PlayerManager.instance.playerColors[ownerID]]);
+        BoardManager.instance.setPiece(codedPos, this);
     }
     public virtual void OnTileInvoked(TileController source) { }
+    public abstract bool CanIPlaceHere(Vector2Int mapPos);
 }
 public enum PieceType
 {

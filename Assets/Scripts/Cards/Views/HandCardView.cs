@@ -40,6 +40,11 @@ public class HandCardView : CardView
             transform.DOLocalMoveY(0.3f, 0.5f);
         }
     }
+    public void SimpleDeselect()
+    {
+        hce.selected = false;
+        transform.DOLocalMoveY(0, 0.5f);
+    }
 
 
 

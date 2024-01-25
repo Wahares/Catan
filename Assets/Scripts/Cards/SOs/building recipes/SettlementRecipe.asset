@@ -19,5 +19,6 @@ MonoBehaviour:
     number: 1
   icon: {fileID: 0}
   piece: {fileID: 2358506310697655434, guid: 4277524f86fe37b429a4ea5dc3b4734c, type: 3}
-  piecePreview: {fileID: 0}
-  maxOnBoard: 1
+  piecePreview: {fileID: 2078677843936281678, guid: 8686f1a4c30d93f449b141beed40c0ce,
+    type: 3}
+  maxOnBoard: 5

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45c0fe8c5d361d340954f450540a9b53, type: 3}
-  m_Name: WheatOption
+  m_Name: Wheat4x1
   m_EditorClassIdentifier: 
   materials:
   - card: {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}

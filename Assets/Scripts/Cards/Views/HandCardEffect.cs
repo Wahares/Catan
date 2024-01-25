@@ -10,14 +10,14 @@ public class HandCardEffect : MonoBehaviour
     {
         if (selected)
             return;
-        visual.DOKill();
+        visual.DOComplete();
         visual.DOLocalMoveY(0.5f, 0.1f);
     }
     private void OnMouseExit()
     {
         if (selected)
             return;
-        visual.DOKill();
+        visual.DOComplete();
         visual.DOLocalMoveY(0.4f, 0.1f);
     }
     [SerializeField]

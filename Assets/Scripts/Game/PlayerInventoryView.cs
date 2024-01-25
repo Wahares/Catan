@@ -26,7 +26,7 @@ public class PlayerInventoryView : MonoBehaviour
     public void initialize(bool isMine)
     {
         this.isMine = isMine;
-        if(isMine)
+        if (isMine)
             pcoc = GetComponent<PlayerCardsOptionsController>();
     }
 
@@ -57,7 +57,7 @@ public class PlayerInventoryView : MonoBehaviour
         card.GetComponent<CardView>().Initialize(ID);
         if (!isMine)
         {
-            Material newTexture = null;
+            Material newTexture;
             if (item is SpecialCard)
             {
                 switch ((item as SpecialCard).sourceType)
@@ -102,10 +102,11 @@ public class PlayerInventoryView : MonoBehaviour
 
     private void distributeInHand(List<CardView> cards)
     {
-        Vector2 offset = -Vector2.right / cards.Count / 2;
+        float spacing = Mathf.Clamp(3 / (cards.Count == 0 ? 1 : cards.Count), 0.25f, 0.5f);
+        Vector2 offset = -Vector2.right * spacing * cards.Count / 2;
         for (int i = 0; i < cards.Count; i++)
         {
-            Vector2 pos = offset + Vector2.right * i / cards.Count;
+            Vector2 pos = offset + Vector2.right * i * spacing;
             pos.y = (float)i / cards.Count * 0.01f;
             cards[i].transform.DOComplete();
             cards[i].transform.DOLocalMove(new Vector3(pos.x, 0, -pos.y), 0.1f);
@@ -127,4 +128,12 @@ public class PlayerInventoryView : MonoBehaviour
     }
 
     public void OnSelectedCardsChanged() => pcoc.OnSelectedChanged();
+
+    public void resetSelected()
+    {
+        foreach (var card in selectedCardsViews)
+            (card as HandCardView)?.SimpleDeselect();
+        selectedCardsViews.Clear();
+        OnSelectedCardsChanged();
+    }
 }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a248b67359eea5049ae8c326730cc121, type: 3}
+  m_Name: RoadRecipe
+  m_EditorClassIdentifier: 
+  materials:
+  - card: {fileID: 11400000, guid: 30387472f1a331841b887586aa3f576f, type: 2}
+    number: 1
+  - card: {fileID: 11400000, guid: 0bc51dc6c431edb4db15ae518a2cbe16, type: 2}
+    number: 1
+  icon: {fileID: 0}
+  piece: {fileID: 5684346746769349981, guid: 4efc96bdd6a8ace4f840d75996586377, type: 3}
+  piecePreview: {fileID: 1014152640346937397, guid: 70d74108e73cb5b4da735d5e1d506a57,
+    type: 3}
+  maxOnBoard: 10

@@ -1,8 +1,10 @@
 using DG.Tweening;
+using FishNet;
 using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DiceController : NetworkBehaviour
 {
@@ -13,31 +15,85 @@ public class DiceController : NetworkBehaviour
     [SerializeField]
     private Vector3 hiddenPos, rollPos;
 
-
+    [SerializeField]
+    private Button rollButton;
 
     public static DiceController instance;
-    public event System.Action<int,int,diceActions> OnDiceRolled;
+    public event System.Action<int, int, diceActions> OnDiceRolled;
 
 
     private void Awake()
     {
         instance = this;
+        rollButton.gameObject.SetActive(false);
+
+        if (InstanceFinder.NetworkManager.IsServer)
+            OnDiceRolled += handleDiceBasedPhases;
+
+    }
+    private void OnDestroy()
+    {
+        if (InstanceFinder.NetworkManager.IsServer)
+            OnDiceRolled -= handleDiceBasedPhases;
+    }
+
+    private void handleDiceBasedPhases(int basic, int red, diceActions action)
+    {
+        if (action == diceActions.Barbarians)
+        {
+            BoardManager.instance.moveBarbariansOnServer();
+            if (BoardManager.instance.currentBarbariansPos % (BoardManager.instance.numberOfBarbariansFields + 1) == 0)
+                TurnManager.instance.EnqueuePhase(Phase.Barbarians, PlayerManager.numOfPlayers);
+        }
+        if(basic+red == 7)
+            TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, PlayerManager.numOfPlayers);
+
+        if (TurnManager.instance.enqueuedPhases.Count > 0)
+            TurnManager.instance.changePhaseOnServer(TurnManager.instance.enqueuedPhases[0].phase);
+        else
+            TurnManager.instance.changePhaseOnServer(Phase.CasualRound);
+
+    }
+
+
+    public void allowToRoll()
+    {
+        if (TurnManager.currentPhase != Phase.BeforeRoll)
+            return;
+        if (!TurnManager.isMyTurn)
+            return;
+        rollButton.gameObject.SetActive(true);
     }
 
     [Server]
     private void generateRoll(out ushort basic, out ushort red, out ushort action)
     {
-        basic = (ushort)(Random.Range(0,6)+1);
-        red = (ushort)(Random.Range(0,6)+1);
+        basic = (ushort)(Random.Range(0, 6) + 1);
+        red = (ushort)(Random.Range(0, 6) + 1);
         action = (ushort)(Random.Range(0, 6) + 1);
     }
-    [ContextMenu("roll")]
+
+    public void tryToRollDice()
+    {
+        if (!TurnManager.isMyTurn)
+            return;
+        if(TurnManager.currentPhase != Phase.BeforeRoll)
+            return;
+        rollDice();
+        rollButton.gameObject.SetActive(false);
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void rollDice()
     {
         if (!GameManager.started)
         {
             Debug.LogError("Can't roll dices - game hasn't started yet!");
+            return;
+        }
+        if (TurnManager.currentPhase != Phase.BeforeRoll)
+        {
+            Debug.LogError("Can't roll dices - incorrect phase!");
             return;
         }
 
@@ -47,7 +103,7 @@ public class DiceController : NetworkBehaviour
         generateRoll(out basic, out red, out actions);
 
         ushort coded = actions;
-        coded |= (ushort)( red << 4);
+        coded |= (ushort)(red << 4);
         coded |= (ushort)(basic << 8);
 
         recieveRoll(coded);
@@ -57,9 +113,9 @@ public class DiceController : NetworkBehaviour
     [ObserversRpc]
     private void recieveRoll(ushort codedRoll)
     {
-        int basic = (codedRoll & (15 << 8))>>8;
-        int red = (codedRoll & (15<<4))>>4;
-        int action = codedRoll&15;
+        int basic = (codedRoll & (15 << 8)) >> 8;
+        int red = (codedRoll & (15 << 4)) >> 4;
+        int action = codedRoll & 15;
 
         Debug.Log($"rolled: {basic} {red} {actionFromDiceNumber(action)}");
 
@@ -76,7 +132,7 @@ public class DiceController : NetworkBehaviour
     }
     public diceActions actionFromDiceNumber(int number) => (diceActions)Mathf.Clamp(number - 3, 0, 3);
 
-    private IEnumerator diceRollView(int basic,int red,int action)
+    private IEnumerator diceRollView(int basic, int red, int action)
     {
         bufferedBasic = basic;
         bufferedRed = red;
@@ -90,9 +146,9 @@ public class DiceController : NetworkBehaviour
         redDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(red);
         actionDice.GetComponentInChildren<PreparedDiceRotations>().SetToThrow(action);
 
-        basicDice.SetInteger("whichRoll",0);
-        redDice.SetInteger("whichRoll",3);
-        actionDice.SetInteger("whichRoll",4);
+        basicDice.SetInteger("whichRoll", 0);
+        redDice.SetInteger("whichRoll", 3);
+        actionDice.SetInteger("whichRoll", 4);
 
         transform.DOComplete();
         transform.DOMove(rollPos, 0.5f);
@@ -108,8 +164,8 @@ public class DiceController : NetworkBehaviour
         redDice.enabled = false;
         actionDice.enabled = false;
 
-        basicDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot,-Vector3.right/3, basic);
-        redDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot,Vector3.zero, red);
+        basicDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot, -Vector3.right / 3, basic);
+        redDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot, Vector3.zero, red);
         actionDice.GetComponentInChildren<PreparedDiceRotations>().snapToPreview(previewPivot, Vector3.right / 3, action);
 
         yield return new WaitForSeconds(1f);

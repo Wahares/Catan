@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e6e7102eaf08d2b41affd8f1b6d99254, type: 2}
+  - {fileID: 2100000, guid: c621e638dc4ae5e4c80908144419c12f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -114,7 +114,7 @@ Transform:
   m_Children:
   - {fileID: 75393169173234518}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7519773842165506049
 MonoBehaviour:
@@ -128,5 +128,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb1225553c158ed499886b008d847d61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materials: []
+  materials:
+  - {fileID: 2100000, guid: c621e638dc4ae5e4c80908144419c12f, type: 2}
+  - {fileID: 2100000, guid: da1b0a53708f19846add4fe07b581fb2, type: 2}
+  - {fileID: 2100000, guid: 4edfb42f4e55d734b970bd30bf75a37a, type: 2}
+  - {fileID: 2100000, guid: 9ce7d936ef9094a42863290213e08246, type: 2}
+  - {fileID: 2100000, guid: 15e79e30f856b29439ef38cd9b30e95b, type: 2}
+  - {fileID: 2100000, guid: c72e655eee2fb3448a93c73ff3fe8fcf, type: 2}
+  - {fileID: 2100000, guid: 8867adce973f5b54fbe38015a2557416, type: 2}
+  - {fileID: 2100000, guid: 39ac13bb60697ba4e97e3c37876e3996, type: 2}
   render: {fileID: 2966684388954977467}

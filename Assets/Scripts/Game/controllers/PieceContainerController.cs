@@ -21,6 +21,7 @@ where T1 : SinglePieceController
         currentPiece = pieceController;
         if (pieceController == null)
             return;
+        currentPiece.transform.parent = transform;
         currentPiece.transform.localPosition = Vector3.up;
         currentPiece.transform.localEulerAngles = Vector3.zero;
         currentPiece.transform.localScale = Vector3.zero;

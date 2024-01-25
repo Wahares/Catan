@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using System.Linq;
 using FishNet.Object;
 using FishNet;
 
@@ -26,12 +27,17 @@ public class BoardManager : NetworkBehaviour
 
     public static BoardManager instance;
 
-    public Vector2Int currentBanditPos;
+    public Vector2Int currentBanditPos = new Vector2Int(-1, -1);
+    [SerializeField]
+    private GameObject bandits;
 
+    public int currentBarbariansPos { get; private set; }
+    public readonly int numberOfBarbariansFields = 8;
 
     private void Awake()
     {
         instance = this;
+        currentBarbariansPos = 0;
         DiceController.instance.OnDiceRolled += UseDiceData;
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
@@ -95,6 +101,43 @@ public class BoardManager : NetworkBehaviour
     }
     public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
     public void DoBanditsEffect() { }
+    public bool banditsExsist() => currentBanditPos != new Vector2Int(-1, -1);
+
+    [ServerRpc(RequireOwnership = false)]
+    public void moveBanditsOnServer(Vector2Int newPos, int moverID)
+    {
+        moveBandits(newPos);
+        List<SettlementController> settlements = Tiles[newPos]
+            .getNearbyCrossings()
+            .Select(e => e.GetComponent<SettlementController>())
+            .Where(e => e != null)
+            .ToList();
+        foreach (var settlement in settlements)
+        {
+            if (settlement.pieceOwnerID != moverID)
+            {
+                Dictionary<int, int> cardsInHand = PlayerInventoriesManager.instance.getPlayersCardsInHand(settlement.pieceOwnerID);
+                if (cardsInHand.Count != 0)
+                {
+                    int id = cardsInHand.ElementAt(UnityEngine.Random.Range(0, cardsInHand.Count)).Key;
+                    PlayerInventoriesManager.instance.ChangeCardQuantity(settlement.pieceOwnerID, id, -1);
+                    PlayerInventoriesManager.instance.ChangeCardQuantity(moverID, id, 1);
+                }
+            }
+        }
+    }
+
+    [ObserversRpc]
+    private void moveBandits(Vector2Int newPos)
+    {
+        currentBanditPos = newPos;
+        bandits.transform.DOComplete();
+        bandits.transform.DOJump(Tiles[newPos].transform.position, 0.5f, 1, 0.25f);
+    }
+
+    public void moveBarbariansOnServer() { currentBarbariansPos++; moveBarbarians(currentBarbariansPos); }
+    [ObserversRpc]
+    public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; }
 
     [ObserversRpc]
     public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)
@@ -146,23 +189,21 @@ public class BoardManager : NetworkBehaviour
                 if (ring == 0)
                 {
                     go.GetComponent<TileController>().Initialize(TileType.Desert, 7, mapPos);
-                    if (NetworkManager?.IsServer ?? true)
-                    {
-                        rollActions.Add(7, null);
-                        rollActions[7] += go.GetComponent<TileController>().OnNumberRolled;
-                    }
+
+                    rollActions.Add(7, null);
+                    rollActions[7] += go.GetComponent<TileController>().OnNumberRolled;
+
                 }
                 else
                 {
                     int diceNum = diceNums[tileID];
                     TileType type = (TileType)tileTypes[tileID];
                     go.GetComponent<TileController>().Initialize(type, diceNum, mapPos);
-                    if (NetworkManager?.IsServer ?? true)
-                    {
-                        if (!rollActions.ContainsKey(diceNum))
-                            rollActions.Add(diceNum, null);
-                        rollActions[diceNum] += go.GetComponent<TileController>().OnNumberRolled;
-                    }
+
+                    if (!rollActions.ContainsKey(diceNum))
+                        rollActions.Add(diceNum, null);
+                    rollActions[diceNum] += go.GetComponent<TileController>().OnNumberRolled;
+
                     tileID++;
                 }
 
@@ -216,6 +257,7 @@ public class BoardManager : NetworkBehaviour
         rollActions[basic + red]?.Invoke();
     }
 
+
     public int numberOfPieces(int ownerID, PieceType type)
     {
         if (type == PieceType.Unset)
@@ -243,20 +285,100 @@ public class BoardManager : NetworkBehaviour
         }
         return tmp;
     }
-
     public void setPiece(Vector2Int pos, SinglePieceController spc)
     {
-        if (spc.pieceType == PieceType.Road)
+        if (spc.placeType == PiecePlaceType.Road)
             roads[pos].SetPiece(spc as SingleRoadController);
         else
+            if (spc.placeType == PiecePlaceType.Crossing)
             crossings[pos].SetPiece(spc);
     }
-    public SinglePieceController getPiece(Vector2Int pos, PieceType type)
+    public SinglePieceController getPiece(Vector2Int pos, PiecePlaceType type)
     {
-        if (type == PieceType.Road)
+        if (type == PiecePlaceType.Road)
             return roads[pos].currentPiece;
         else
+            if (type == PiecePlaceType.Crossing)
             return crossings[pos].currentPiece;
+        return null;
+    }
+
+    public int mySafeNumOfCards()
+    {
+        int sum = 7;
+        foreach (var cross in crossings)
+        {
+            if (cross.Value.currentPiece == null)
+                continue;
+            if (cross.Value.currentPiece.pieceOwnerID != LocalConnection.ClientId)
+                continue;
+            if (cross.Value.currentPiece.pieceType != PieceType.City)
+                continue;
+            if ((cross.Value.currentPiece as CityController)?.hasWalls ?? false)
+                sum += 2;
+        }
+        return sum;
+    }
+
+    public int barbariansPower()
+    {
+        List<CityController> cities = crossings.Values
+            .Select(e => { return e?.currentPiece?.GetComponent<CityController>() ?? null; })
+            .Where(e => e != null).ToList();
+        return cities.Count;
+    }
+    public int KnightPowerOfPlayer(int clientID)
+    {
+        return GetPlayerPieces<KnightController>(clientID, PiecePlaceType.Crossing).Sum(e => e.isMobilized ? 1 : 0);
+    }
+    public bool areWeInDanger()
+    {
+        int sum = 0;
+        foreach (var player in PlayerManager.instance.playerColors)
+            sum += KnightPowerOfPlayer(player.Key);
+        return sum < barbariansPower();
+    }
+    public List<int> currentPlayersInDanger()
+    {
+        Dictionary<int, int> playersPower = new();
+
+        int lowest = 999;
+
+        foreach (var player in PlayerManager.instance.playerColors)
+        {
+            bool canBeInDaner = false;
+            foreach (var city in GetPlayerPieces<CityController>(player.Key, PiecePlaceType.Crossing))
+                if (!city.isMetropoly)
+                    canBeInDaner = true;
+
+            int power = KnightPowerOfPlayer(player.Key);
+
+            if (power < lowest)
+                lowest = power;
+
+            if (canBeInDaner)
+                playersPower.Add(player.Key, power);
+
+        }
+        return playersPower.Where(e => e.Value == lowest).Select(e => e.Key).ToList();
+    }
+
+    public List<T> GetPlayerPieces<T>(int clientID, PiecePlaceType type)
+        where T : SinglePieceController
+    {
+        switch (type)
+        {
+            case PiecePlaceType.Crossing:
+                return crossings.Values
+                    .Select(e => e.currentPiece?.GetComponent<T>())
+                    .Where(e => e != null).Where(e => e.pieceOwnerID == clientID).ToList();
+            case PiecePlaceType.Road:
+                return roads.Values
+                    .Select(e => e.currentPiece?.GetComponent<T>())
+                    .Where(e => e != null).Where(e => e.pieceOwnerID == clientID).ToList();
+            default:
+                return new List<T>();
+        }
     }
 
 
@@ -282,6 +404,7 @@ public class BoardManager : NetworkBehaviour
     }
 
     public Vector2Int getThis;
+
 
     public Vector3 GetCrossingPosition(Vector2Int cords)
     {

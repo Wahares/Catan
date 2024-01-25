@@ -29,8 +29,23 @@ public class PlayerInventoriesManager : NetworkBehaviour
         foreach (var client in InstanceFinder.ClientManager.Clients)
             playerInventories.Add(client.Value.ClientId, new int[availableCards.Count]);
     }
+
+    public Dictionary<int, int> getPlayersCardsInHand(int clientID)
+    {
+        int[] inventory = instance.playerInventories[clientID];
+        Dictionary<int, int> cardsInHand = new();
+        for (int i = 0; i < inventory.Length; i++)
+        {
+            if (ObjectDefiner.instance.equipableCards[i] is NormalCard || ObjectDefiner.instance.equipableCards[i] is CommodityCard)
+                cardsInHand.Add(i,inventory[i]);
+        }
+        return cardsInHand;
+    }
+
+
+
     [Server]
-    private void ChangeCardQuantity(int clientID, int cardType, int delta)
+    public void ChangeCardQuantity(int clientID, int cardType, int delta)
     {
         ChangeCardQuantityRPC(clientID, cardType, delta);
     }
@@ -38,6 +53,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
     [ObserversRpc]
     private void ChangeCardQuantityRPC(int clientID, int cardID, int delta)
     {
+        playerInventories[clientID][cardID] += delta;
         if (LocalConnection.ClientId == clientID)
             ChangeMyCards(cardID, delta);
         else

@@ -4,6 +4,7 @@ using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using FishNet.Transporting;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerManager : NetworkBehaviour
@@ -20,6 +21,9 @@ public class PlayerManager : NetworkBehaviour
 
     public static bool playerAvailable(int conID) => instance.playerSteamIDs.ContainsKey(conID);
 
+    public static int MyColorIndex => instance.playerColors[instance.LocalConnection.ClientId];
+
+    public static int numOfPlayers => instance.playerColors.Count;
 
     [SyncObject]
     public readonly SyncDictionary<int, int> playerColors = new();
@@ -145,6 +149,32 @@ public class PlayerManager : NetworkBehaviour
         }
     }
 
+    public Dictionary<int, int> victoryPoints = new();
+    public void recalculateVictoryPoints()
+    {
+        victoryPoints.Clear();
+        foreach (var player in ClientManager.Clients)
+        {
+            int sum = 0;
+            foreach (var crossing in BoardManager.instance.crossings)
+                if ((crossing.Value.currentPiece?.pieceOwnerID ?? -999) == player.Key)
+                    sum += crossing.Value.currentPiece?.GetComponent<SettlementController>()?.getVictoryWeight() ?? 0;
+
+            for (int i = 0; i < PlayerInventoriesManager.instance.playerInventories[player.Key].Length; i++)
+                if (ObjectDefiner.instance.equipableCards[i].CardType == cardType.Special)
+                    if (PlayerInventoriesManager.instance.playerInventories[player.Key][i] > 0)
+                        if ((ObjectDefiner.instance.equipableCards[i] as SpecialCard).IsPersistent)
+                            sum++;
+
+
+        }
+
+
+
+
+
+
+    }
 
 
 

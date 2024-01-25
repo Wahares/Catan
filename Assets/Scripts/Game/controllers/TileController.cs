@@ -3,6 +3,7 @@ using TMPro;
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
+using FishNet;
 
 public class TileController : MonoBehaviour
 {
@@ -28,11 +29,14 @@ public class TileController : MonoBehaviour
     }
     public void OnNumberRolled()
     {
+
         if (type == TileType.Desert)
         {
-            GameManager.instance.HandleBandits();
+            if (InstanceFinder.NetworkManager.IsServer)
+                GameManager.instance.HandleBandits();
             return;
         }
+
         if (BoardManager.instance.IsTileBlockedByBandits(mapPos))
         {
             BoardManager.instance.DoBanditsEffect();
@@ -42,14 +46,14 @@ public class TileController : MonoBehaviour
 
         transform.DOComplete();
         transform.DOScaleZ(3, 0.5f).SetEase(Ease.InSine).OnComplete(() => transform.DOScaleZ(1, 0.5f).SetEase(Ease.OutSine));
-        
+
         foreach (var cross in getNearbyCrossings())
             cross.TileNumberRolled(this);
     }
 
     public List<CrossingController> getNearbyCrossings()
     {
-        return Physics.OverlapSphere(transform.position, 2, LayerMask.GetMask("Crossing"), QueryTriggerInteraction.Collide)
+        return Physics.OverlapSphere(transform.position, 1.1f, LayerMask.GetMask("Crossing"), QueryTriggerInteraction.Collide)
             .Select(p => p.GetComponent<CrossingController>())
             .Where(p => p != null).ToList();
     }

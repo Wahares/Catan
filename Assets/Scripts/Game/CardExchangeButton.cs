@@ -14,7 +14,7 @@ public class CardExchangeButton : MonoBehaviour
 
     [SerializeField]
     private GameObject materialPrefab;
-    public void Initialize(RecipedCard config)
+    public void Initialize(RecipedCard config,PlayerInventoryView piv)
     {
         icon.sprite = config.icon;
 
@@ -26,6 +26,6 @@ public class CardExchangeButton : MonoBehaviour
             go.GetComponent<CardExchangeMaterial>().Initialize(mat);
             index++;
         }
-        button.onClick.AddListener(() => { config.OnUsed(); });
+        button.onClick.AddListener(() => { config.OnUsed(); piv.resetSelected(); });
     }
 }

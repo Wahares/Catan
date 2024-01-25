@@ -32,8 +32,8 @@ public class PlayerCardsOptionsController : MonoBehaviour
 
     public void OnSelectedChanged()
     {
-        selectedCards = piv.selectedCardsViews.Select(card=>card.item).ToList();
-        
+        selectedCards = piv.selectedCardsViews.Select(card => card.item).ToList();
+
         FindAllPossibilities();
 
         List<RecipedCard> toDelete = new();
@@ -52,14 +52,14 @@ public class PlayerCardsOptionsController : MonoBehaviour
             if (visibleButtons.ContainsKey(exchange))
                 continue;
             GameObject go = Instantiate(buttonPrefab, buttonsPivot);
-            go.GetComponent<CardExchangeButton>().Initialize(exchange);
+            go.GetComponent<CardExchangeButton>().Initialize(exchange, piv);
             visibleButtons.Add(exchange, go.GetComponent<CardExchangeButton>());
         }
         int i = 0;
         foreach (var item in visibleButtons)
         {
             item.Value.transform.DOComplete();
-            item.Value.transform.DOLocalMove(Vector3.up * i,0.1f);
+            item.Value.transform.DOLocalMove(Vector3.up * i, 0.1f);
         }
     }
 
