@@ -27,36 +27,56 @@ public class DiceController : NetworkBehaviour
         instance = this;
         rollButton.gameObject.SetActive(false);
 
-        if (InstanceFinder.NetworkManager.IsServer)
-            OnDiceRolled += handleDiceBasedPhases;
+        rollButton.onClick.AddListener(() => { tryToRollDice(); });
+
+        if (!InstanceFinder.NetworkManager.IsServer)
+            return;
+        OnDiceRolled += handleDiceBasedPhases;
+        TurnManager.OnAnyTurnStarted += DropLock;
 
     }
     private void OnDestroy()
     {
-        if (InstanceFinder.NetworkManager.IsServer)
-            OnDiceRolled -= handleDiceBasedPhases;
+        if (!InstanceFinder.NetworkManager.IsServer)
+            return;
+        OnDiceRolled -= handleDiceBasedPhases;
+        TurnManager.OnAnyTurnStarted -= DropLock;
     }
+    [Server]
+    private void DropLock(int clientID, Phase ph) { if (ph == Phase.BeforeRoll) DiceLock = false; }
 
     private void handleDiceBasedPhases(int basic, int red, diceActions action)
     {
         if (action == diceActions.Barbarians)
         {
             BoardManager.instance.moveBarbariansOnServer();
-            if (BoardManager.instance.currentBarbariansPos % (BoardManager.instance.numberOfBarbariansFields + 1) == 0)
+            if ((BoardManager.instance.currentBarbariansPos + 1) % BoardManager.instance.numberOfBarbariansFields == 0)
+            {
                 for (int i = 0; i < PlayerManager.numOfPlayers; i++)
                     TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, true);
+                if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
+                    BoardManager.instance.moveBanditsOnServer(new Vector2Int(0, 0), -1);
+            }
         }
         if (basic + red == 7)
+        {
             for (int i = 0; i < PlayerManager.numOfPlayers; i++)
                 TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, i, true);
+
+            if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
+                Debug.Log("Bandits are not yet on the board - skipping BanditsMove phase...");
+            else
+                TurnManager.instance.EnqueuePhase(Phase.BanditsMove, TurnManager.currentTurnID, true);
+        }
 
         for (int i = 0; i < PlayerManager.numOfPlayers; i++)
             TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, true);
 
         TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, true);
-        TurnManager.instance.endTurn();
+        TurnManager.instance.ForceEndTurn();
     }
 
+    public bool DiceLock = false;
 
     public void allowToRoll()
     {
@@ -86,7 +106,7 @@ public class DiceController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void rollDice()
+    public void rollDice()
     {
         if (!GameManager.started)
         {
@@ -98,6 +118,12 @@ public class DiceController : NetworkBehaviour
             Debug.LogError("Can't roll dices - incorrect phase!");
             return;
         }
+        if (DiceLock)
+        {
+            Debug.LogWarning("Can't roll dices - enabled lock");
+            return;
+        }
+        DiceLock = true;
 
         ushort basic;
         ushort red;
@@ -115,6 +141,8 @@ public class DiceController : NetworkBehaviour
     [ObserversRpc]
     private void recieveRoll(ushort codedRoll)
     {
+        rollButton.gameObject.SetActive(false);
+
         int basic = (codedRoll & (15 << 8)) >> 8;
         int red = (codedRoll & (15 << 4)) >> 4;
         int action = codedRoll & 15;

@@ -8,7 +8,6 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager instance;
     public static event Action OnGameStarted;
-    public static event Action OnBanditsRolled;
     public static bool started = false;
     private void Start()
     {
@@ -37,10 +36,6 @@ public class GameManager : NetworkBehaviour
         started = true;
     }
 
-    public void HandleBandits()
-    {
-        OnBanditsRolled?.Invoke();
-    }
     private void OnDestroy()
     {
         OnGameStarted = null;

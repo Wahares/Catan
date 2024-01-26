@@ -15,7 +15,7 @@ public class HandCardView : CardView
     public override void DestroyCard()
     {
         transform.DOComplete();
-        transform.DOLocalMoveY(10, 0.1f).SetEase(Ease.OutSine).OnComplete(() => Destroy(gameObject));
+        transform.DOScale(0, 0.25f).SetEase(Ease.OutSine).OnComplete(() => Destroy(gameObject));
     }
     public override void OnClicked()
     {

@@ -12,21 +12,53 @@ public class CursorController : MonoBehaviour
     public static Action<Vector2Int?, PiecePlaceType> OnClicked;
     public static Action OnRightClicked;
     public static Action<Vector2Int?, PiecePlaceType> Hovering;
+
     public PiecePlaceType currentFocusPieceType;
+
+    private IClickable currentFocused;
 
     void Update()
     {
-
         RaycastHit hit;
         if (currentFocusPieceType == PiecePlaceType.None)
         {
             if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, 255, QueryTriggerInteraction.Collide))
             {
+                if (hit.transform.TryGetComponent(out IClickable click))
+                {
+                    if (currentFocused != click)
+                    {
+                        currentFocused?.OnHoverEnd();
+                        currentFocused = click;
+                        currentFocused?.OnHoverStart();
+                    }
+                }
+                else 
+                if (currentFocused != null)
+                {
+                    currentFocused.OnHoverEnd();
+                    currentFocused = null;
+                }
 
+                if (Input.GetMouseButtonDown(0))
+                    currentFocused?.OnClick();
+            }
+            else
+            {
+                if (currentFocused != null)
+                {
+                    currentFocused.OnHoverEnd();
+                    currentFocused = null;
+                }
             }
         }
         else
         {
+            if (currentFocused != null)
+            {
+                currentFocused.OnHoverEnd();
+                currentFocused = null;
+            }
             LayerMask mask = 0;
             switch (currentFocusPieceType)
             {

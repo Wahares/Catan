@@ -7,20 +7,22 @@ public class CameraController : MonoBehaviour
     private Transform BoardPivot, CameraPivot;
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (GameManager.started)
         {
-            BoardPivot.DOComplete();
-            BoardPivot.DORotate(BoardPivot.eulerAngles - Vector3.up * 60, 0.1f).SetEase(Ease.InSine);
-            foreach (var tile in BoardManager.instance.Tiles.Values)
-                tile.transform.Rotate(0, 60, 0, Space.World);
-        }
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            BoardPivot.DOComplete();
-            BoardPivot.DORotate(BoardPivot.eulerAngles + Vector3.up * 60, 0.1f).SetEase(Ease.InSine);
-            foreach (var tile in BoardManager.instance.Tiles.Values)
-                tile.transform.Rotate(0, -60, 0, Space.World);
-
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                BoardPivot.DOComplete();
+                BoardPivot.DORotate(BoardPivot.eulerAngles - Vector3.up * 60, 0.1f).SetEase(Ease.InSine);
+                foreach (var tile in BoardManager.instance.Tiles.Values)
+                    tile.transform.Rotate(0, 60, 0, Space.World);
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                BoardPivot.DOComplete();
+                BoardPivot.DORotate(BoardPivot.eulerAngles + Vector3.up * 60, 0.1f).SetEase(Ease.InSine);
+                foreach (var tile in BoardManager.instance.Tiles.Values)
+                    tile.transform.Rotate(0, -60, 0, Space.World);
+            }
         }
 
         Vector3 desiredRot = Vector3.right * 30;

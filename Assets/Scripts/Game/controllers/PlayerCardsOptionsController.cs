@@ -59,13 +59,15 @@ public class PlayerCardsOptionsController : MonoBehaviour
         foreach (var item in visibleButtons)
         {
             item.Value.transform.DOComplete();
-            item.Value.transform.DOLocalMove(Vector3.up * i, 0.1f);
+            item.Value.transform.DOLocalMove(Vector3.up * 0.5f * i++, 0.1f);
         }
     }
 
     public void FindAllPossibilities()
     {
         possibleExchanges.Clear();
+        if (TurnManager.currentPhase != Phase.CasualRound || !TurnManager.isMyTurn)
+            return;
         foreach (var option in ObjectDefiner.instance.availableBuildingRecipes)
         {
             if (option.CanUse(selectedCards, GameManager.instance.LocalConnection.ClientId))

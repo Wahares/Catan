@@ -19,11 +19,10 @@ public class PlayerInventoriesManager : NetworkBehaviour
     private void Awake()
     {
         instance = this;
-        if (InstanceFinder.NetworkManager.IsServer)
-            GameManager.OnGameStarted += setupPlayerInventories;
+        //if (InstanceFinder.NetworkManager.IsServer)
+        GameManager.OnGameStarted += setupPlayerInventories;
         GameManager.OnGameStarted += setupInventoriesVisuals;
     }
-    [Server]
     private void setupPlayerInventories()
     {
         foreach (var client in InstanceFinder.ClientManager.Clients)
@@ -37,7 +36,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
         for (int i = 0; i < inventory.Length; i++)
         {
             if (ObjectDefiner.instance.equipableCards[i] is NormalCard || ObjectDefiner.instance.equipableCards[i] is CommodityCard)
-                cardsInHand.Add(i,inventory[i]);
+                cardsInHand.Add(i, inventory[i]);
         }
         return cardsInHand;
     }
@@ -112,6 +111,11 @@ public class PlayerInventoriesManager : NetworkBehaviour
     {
         GameObject obj = Instantiate(flyingCardPrefab);
         obj.GetComponent<FlyingCardView>().Initialize(cardID);
+        if (hidden)
+        {
+            growthType gt = (ObjectDefiner.instance.equipableCards[cardID] as SpecialCard)?.sourceType ?? growthType.Blank;
+            obj.GetComponent<FlyingCardView>().hideTexture(gt);
+        }
         return obj;
     }
 

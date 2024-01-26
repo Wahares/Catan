@@ -85,12 +85,14 @@ public class PlayerManager : NetworkBehaviour
     private void setupMe(ulong steamID, NetworkConnection nc = null)
     {
         playerSteamIDs.Add(nc.ClientId, steamID);
-        setupLobbyData(nc, CurrentlyMaxPlayers);
+        setupLobbyData(nc, CurrentlyMaxPlayers,TurnManager.TIME_LIMIT);
     }
     [TargetRpc]
-    public void setupLobbyData(NetworkConnection nc, int maxPlayers)
+    public void setupLobbyData(NetworkConnection nc, int maxPlayers,int timeLimit)
     {
         CurrentlyMaxPlayers = maxPlayers;
+        TurnManager.TIME_LIMIT = timeLimit;
+        TurnManager.DO_LIMIT_TURN = timeLimit != 0;
         readyController.initialize();
     }
 
@@ -121,6 +123,7 @@ public class PlayerManager : NetworkBehaviour
         //Debug.Log(Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)playerSteamIDs[args.ConnectionId]) + " joined");
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
+        readyController.checkIfCanStart();
         if (GameManager.started)
         {
             ServerManager.Kick(args.ConnectionId, FishNet.Managing.Server.KickReason.Unset);

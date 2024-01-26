@@ -4,7 +4,7 @@ using UnityEngine;
 public class HandCardEffect : MonoBehaviour
 {
     [SerializeField]
-    private Transform visual;
+    protected Transform visual;
     public bool selected = false;
     private void OnMouseEnter()
     {

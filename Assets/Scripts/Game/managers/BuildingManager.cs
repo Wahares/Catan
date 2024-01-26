@@ -98,7 +98,6 @@ public class BuildingManager : NetworkBehaviour
         }
         resetBuilding();
     }
-
     private void resetBuilding()
     {
         if (preview.childCount > 0)
@@ -132,7 +131,13 @@ public class BuildingManager : NetworkBehaviour
         spc.Initialize(clientID, pos);
 
     }
-
+    [Server]
+    public void SetPieceOnServer(Vector2Int pos, int clientID, int brID)
+    {
+        if (TurnManager.currentPhase != Phase.Barbarians && TurnManager.currentPhase != Phase.PlacingVillages)
+            return;
+        BuildPieceOnClients(pos, brID, clientID);
+    }
 
     public BuildingRecipe brr;
     public Vector2Int here;

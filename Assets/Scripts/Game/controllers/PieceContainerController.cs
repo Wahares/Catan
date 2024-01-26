@@ -17,7 +17,7 @@ where T1 : SinglePieceController
     public virtual void SetPiece(T1 pieceController)
     {
         if (currentPiece != null)
-            currentPiece.transform.DOScale(0, 0.5f).OnComplete(() => Destroy(currentPiece.gameObject));
+            currentPiece.transform.DOScale(0, 0.5f).OnComplete(() => Destroy(transform.GetChild(0).gameObject));
         currentPiece = pieceController;
         if (pieceController == null)
             return;

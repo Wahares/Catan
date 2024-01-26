@@ -34,9 +34,9 @@ public class SettlementController : SinglePieceController
 
         obj.transform.localScale = Vector3.zero;
         obj.transform.position = tc.transform.position;
-        obj.transform.DOScale(Vector3.one, 0.5f);
+        obj.transform.DOScale(Vector3.one/2, 0.5f);
         obj.transform.DOJump(transform.position, 0.5f, 1, 2f);
-        obj.transform.DOScale(Vector3.one, 0.1f).SetDelay(1.9f).OnComplete(() => Destroy(obj));
+        obj.transform.DOScale(Vector3.zero, 0.5f).SetDelay(1.5f).OnComplete(() => Destroy(obj));
 
         if (InstanceFinder.NetworkManager.IsServer)
             PlayerInventoriesManager.instance.ChangeCardQuantity(pieceOwnerID, card.ID, 1);

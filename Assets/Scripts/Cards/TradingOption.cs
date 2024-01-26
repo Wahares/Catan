@@ -4,6 +4,6 @@ public class TradingOption : RecipedCard
 {
     public override void OnUsed()
     {
-        
+        PlayerInventoryExchangeController.instance.BeginTransaction(this);
     }
 }

@@ -25,8 +25,8 @@ public class CityController : SettlementController
     public override bool CanIPlaceHere(Vector2Int mapPos)
     {
         SinglePieceController spc = BoardManager.instance.getPiece(mapPos, placeType);
-        if (TurnManager.currentPhase == Phase.PlacingVillages && spc == null)
-            return true;
+        if (TurnManager.currentPhase == Phase.PlacingVillages)
+            return spc == null;
         if (spc == null)
             return false;
         if (spc.pieceOwnerID != BoardManager.instance.LocalConnection.ClientId)

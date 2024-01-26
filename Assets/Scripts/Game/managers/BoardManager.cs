@@ -38,11 +38,12 @@ public class BoardManager : NetworkBehaviour
     {
         instance = this;
         currentBarbariansPos = 0;
+        currentBanditPos = new Vector2Int(-1, -1);
+        bandits.transform.position = Vector3.down * 10;
         DiceController.instance.OnDiceRolled += UseDiceData;
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
         GameManager.OnGameStarted += createBoard;
-        currentBanditPos = -Vector2Int.right;
     }
     private void OnDestroy()
     {
@@ -107,6 +108,8 @@ public class BoardManager : NetworkBehaviour
     public void moveBanditsOnServer(Vector2Int newPos, int moverID)
     {
         moveBandits(newPos);
+        if (moverID == -1)
+            return;
         List<SettlementController> settlements = Tiles[newPos]
             .getNearbyCrossings()
             .Select(e => e.GetComponent<SettlementController>())
@@ -305,12 +308,16 @@ public class BoardManager : NetworkBehaviour
 
     public int mySafeNumOfCards()
     {
+        return safeNumOfCardOfPlayer(LocalConnection.ClientId);
+    }
+    public int safeNumOfCardOfPlayer(int clientID)
+    {
         int sum = 7;
         foreach (var cross in crossings)
         {
             if (cross.Value.currentPiece == null)
                 continue;
-            if (cross.Value.currentPiece.pieceOwnerID != LocalConnection.ClientId)
+            if (cross.Value.currentPiece.pieceOwnerID != clientID)
                 continue;
             if (cross.Value.currentPiece.pieceType != PieceType.City)
                 continue;

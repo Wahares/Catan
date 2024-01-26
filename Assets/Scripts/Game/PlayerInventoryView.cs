@@ -29,6 +29,14 @@ public class PlayerInventoryView : MonoBehaviour
         if (isMine)
             pcoc = GetComponent<PlayerCardsOptionsController>();
     }
+    private void Awake()
+    {
+        TurnManager.OnMyTurnEnded += resetSelected;
+    }
+    private void OnDestroy()
+    {
+        TurnManager.OnMyTurnEnded -= resetSelected;
+    }
 
     private void revalidateViews()
     {
@@ -57,14 +65,11 @@ public class PlayerInventoryView : MonoBehaviour
         card.GetComponent<CardView>().Initialize(ID);
         if (!isMine)
         {
-            Material newTexture;
+            Material newTexture = blankNormal;
             if (item is SpecialCard)
             {
                 switch ((item as SpecialCard).sourceType)
                 {
-                    case growthType.Blank:
-                        newTexture = blankNormal;
-                        break;
                     case growthType.Trade:
                         newTexture = blankTrade;
                         break;
@@ -76,9 +81,6 @@ public class PlayerInventoryView : MonoBehaviour
                         break;
                 }
             }
-            else
-                card.GetComponent<CardView>();
-            newTexture = blankNormal;
             card.GetComponent<CardView>().OverrideTexture(newTexture);
             if (card.GetComponent<HandCardEffect>() != null)
                 card.GetComponent<HandCardEffect>().enabled = false;
@@ -116,18 +118,18 @@ public class PlayerInventoryView : MonoBehaviour
     {
         for (int i = 0; i < cards.Count; i++)
         {
-            cards[i].transform.localPosition = specialPivot.right * i;
+            cards[i].transform.localPosition = Vector3.right * i;
         }
     }
     private void distributePersistent(List<CardView> cards)
     {
         for (int i = 0; i < cards.Count; i++)
         {
-            cards[i].transform.localPosition = persistentPivot.right * i;
+            cards[i].transform.localPosition = Vector3.right * i;
         }
     }
 
-    public void OnSelectedCardsChanged() => pcoc.OnSelectedChanged();
+    public void OnSelectedCardsChanged() => pcoc?.OnSelectedChanged();
 
     public void resetSelected()
     {

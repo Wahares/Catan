@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 154c2c722ba7ee945b3403b4ebb60aec, type: 3}
   m_Name: Wool
   m_EditorClassIdentifier: 
-  cardTexture: {fileID: 0}
+  cardTexture: {fileID: 2100000, guid: 1f81a5c90db0efc4b9b63431efe7a5f6, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 0
   sourceTile: 3

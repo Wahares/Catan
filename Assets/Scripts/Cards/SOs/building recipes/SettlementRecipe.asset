@@ -15,8 +15,6 @@ MonoBehaviour:
   materials:
   - card: {fileID: 11400000, guid: 30387472f1a331841b887586aa3f576f, type: 2}
     number: 2
-  - card: {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}
-    number: 1
   icon: {fileID: 0}
   piece: {fileID: 2358506310697655434, guid: 4277524f86fe37b429a4ea5dc3b4734c, type: 3}
   piecePreview: {fileID: 2078677843936281678, guid: 8686f1a4c30d93f449b141beed40c0ce,

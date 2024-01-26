@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 154c2c722ba7ee945b3403b4ebb60aec, type: 3}
   m_Name: Wheat
   m_EditorClassIdentifier: 
-  cardTexture: {fileID: 0}
+  cardTexture: {fileID: 2100000, guid: 6f175bfd67b97554e8491d5eeae892d2, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 0
   sourceTile: 1

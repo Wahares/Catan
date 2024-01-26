@@ -268,7 +268,6 @@ GameObject:
   - component: {fileID: 5804896151755895824}
   - component: {fileID: 1662186939975200235}
   - component: {fileID: 5680250556310382808}
-  - component: {fileID: 8243174750414579007}
   m_Layer: 0
   m_Name: Persistent Card
   m_TagString: Untagged
@@ -328,19 +327,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.54, y: 0.8, z: 0.025}
   m_Center: {x: -0, y: 0.4, z: -0}
---- !u!114 &8243174750414579007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5498888951964968375}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0659bb769589ef439afcd63cc769c87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visual: {fileID: 4329471277893024798}
 --- !u!1 &6345882461040699018
 GameObject:
   m_ObjectHideFlags: 0

@@ -21,6 +21,8 @@ public class TurnManager : NetworkBehaviour
     public static Action OnMyTurnStarted;
     public static Action OnMyTurnEnded;
 
+    public static Action<int, Phase> OnClientTimeReached;
+
 
 
     public static bool isMyTurn => currentTurnID == instance.myOrder;
@@ -31,18 +33,56 @@ public class TurnManager : NetworkBehaviour
 
     [field: SerializeField]
     public UnityEngine.UI.Button EndTurnButton { get; private set; }
+    [SerializeField]
+    private TMPro.TextMeshProUGUI timeText;
 
+
+    public float timer { get; private set; }
 
     private void Awake()
     {
         instance = this;
+        EndTurnButton.gameObject.SetActive(false);
+        EndTurnButton.onClick.AddListener(() => { endTurn(); });
+        OnMyTurnEnded += hideEndButton;
+        timer = Mathf.Infinity;
+        timeText.gameObject.SetActive(false);
+        BoardManager.OnBoardInitialized += showTimeLimit;
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
         BoardManager.OnBoardInitialized += randomizePlayers;
         PlayerManager.OnPlayerDisconnected += playerWithTurnDisconnected;
-        EndTurnButton.gameObject.SetActive(false);
-        EndTurnButton.onClick.AddListener(() => { endTurn(); EndTurnButton.gameObject.SetActive(false); });
     }
+    private void OnDestroy()
+    {
+        BoardManager.OnBoardInitialized -= showTimeLimit;
+        OnMyTurnEnded -= hideEndButton;
+    }
+    private void showTimeLimit()
+    {
+        if (DO_LIMIT_TURN)
+            timeText.gameObject.SetActive(true);
+    }
+    private void Update()
+    {
+        if (!DO_LIMIT_TURN)
+            return;
+        timer -= Time.deltaTime;
+        if (timer > 0)
+            timeText.text = $"{(int)timer / 60}:{(int)timer % 60:00}";
+        else
+            timeText.text = "0:00";
+        if (timer > 1000000)
+            timeText.text = "";
+        if (timer < 0)
+        {
+            Debug.LogWarning("Force ending current turn due to time limit...");
+            OnClientTimeReached?.Invoke(turnOrder[currentTurnID], currentPhase);
+            timer = Mathf.Infinity;
+        }
+    }
+
+
     [Server]
     private void randomizePlayers()
     {
@@ -81,21 +121,25 @@ public class TurnManager : NetworkBehaviour
     private void startPlacingPhase()
     {
         for (int i = 0; i < turnOrder.Length; i++)
-            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i,true);
+            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i, true);
         for (int i = 0; i < turnOrder.Length; i++)
-            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i,true);
-        EnqueuePhase(Phase.BeforeRoll, 0,true);
+            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i, true);
+        EnqueuePhase(Phase.BeforeRoll, 0, true);
 
         calcNewTurn();
     }
 
-
+    private void hideEndButton()
+    {
+        EndTurnButton.gameObject.SetActive(false);
+    }
 
     public void endTurn()
     {
         if (!isMyTurn)
             return;
-        calcNewTurn();
+        AskServerForNextTurn(currentPhase, LocalConnection.ClientId);
+        Debug.Log("Ending my turn...");
         OnMyTurnEnded?.Invoke();
     }
     [Server]
@@ -119,7 +163,6 @@ public class TurnManager : NetworkBehaviour
 
 
 
-
     [Serializable]
     public class TurnConfiguration
     {
@@ -132,33 +175,45 @@ public class TurnManager : NetworkBehaviour
         if (toBack)
             enqueuedPhases.Add(new TurnConfiguration(ph, turnID));
         else
-            enqueuedPhases.Insert(0,new TurnConfiguration(ph, turnID));
+            enqueuedPhases.Insert(0, new TurnConfiguration(ph, turnID));
     }
     [ServerRpc(RequireOwnership = false)]
+    private void AskServerForNextTurn(Phase phase, int clientID)
+    {
+        if (turnOrder[currentTurnID] == clientID && phase == currentPhase)
+            calcNewTurn();
+        else
+            Debug.LogError("Tried to skip phantom turn!");
+    }
     public void calcNewTurn()
     {
-
         for (int i = 0; i < 999; i++)
         {
             int nextTurnID = (currentTurnID + 1) % turnOrder.Length;
             if (enqueuedPhases.Count == 0)
+            {
+                Debug.Log("adding next roll turn");
                 enqueuedPhases.Add(new TurnConfiguration(Phase.BeforeRoll, nextTurnID));
+            }
 
             TurnConfiguration tc = enqueuedPhases[0];
             enqueuedPhases.RemoveAt(0);
 
+            currentTurnID = tc.turnID;
+            currentPhase = tc.phase;
             if (PlayerManager.playerAvailable(turnOrder[tc.turnID]))
             {
-                currentTurnID = tc.turnID;
-                currentPhase = tc.phase;
                 startNewTurn(tc.turnID, tc.phase);
                 break;
+            }
+            else
+            {
+                Debug.LogWarning("Player out of reach - skipping his turn");
             }
 
             if (i == 998)
                 Debug.LogError("Endless loop!!!!");
         }
-
     }
 
     [ObserversRpc]
@@ -166,9 +221,10 @@ public class TurnManager : NetworkBehaviour
     {
         currentTurnID = turnID;
         currentPhase = phase;
+        timer = (phase == Phase.CasualRound ? 1 : 0.25f) * TIME_LIMIT;
         try
         {
-            Debug.Log($"It's {Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]])}'s turn at {phase} phase");
+            Debug.Log($"It's [{turnOrder[currentTurnID]}]:{Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]])}'s turn at {phase} phase");
         }
         catch { Debug.Log($"It's {PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]]}'s turn at {phase} phase"); }
         OnAnyTurnStarted?.Invoke(turnOrder[currentTurnID], phase);
@@ -186,4 +242,4 @@ public class TurnManager : NetworkBehaviour
 
 
 }
-public enum Phase { GettingReady, PlacingVillages, BeforeRoll, CasualRound, BanditsMoreThan7, Barbarians,GettingSpecialCards }
+public enum Phase { GettingReady, PlacingVillages, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards }

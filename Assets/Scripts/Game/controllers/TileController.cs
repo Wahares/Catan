@@ -29,13 +29,8 @@ public class TileController : MonoBehaviour
     }
     public void OnNumberRolled()
     {
-
         if (type == TileType.Desert)
-        {
-            if (InstanceFinder.NetworkManager.IsServer)
-                GameManager.instance.HandleBandits();
             return;
-        }
 
         if (BoardManager.instance.IsTileBlockedByBandits(mapPos))
         {
@@ -48,7 +43,8 @@ public class TileController : MonoBehaviour
         transform.DOScaleZ(3, 0.5f).SetEase(Ease.InSine).OnComplete(() => transform.DOScaleZ(1, 0.5f).SetEase(Ease.OutSine));
 
         foreach (var cross in getNearbyCrossings())
-            cross.TileNumberRolled(this);
+            if (PlayerManager.playerAvailable(cross.currentPiece?.pieceOwnerID ?? -1))
+                cross.TileNumberRolled(this);
     }
 
     public List<CrossingController> getNearbyCrossings()

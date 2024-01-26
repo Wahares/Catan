@@ -13,4 +13,12 @@ public class SpecialCardView : CardView
         nameText.text = ((SpecialCard)item).cardName;
         descText.text = ((SpecialCard)item).description;
     }
+
+    public override void OnClicked()
+    {
+        Debug.Log("Cliecked special card");
+    }
+
+
+
 }
