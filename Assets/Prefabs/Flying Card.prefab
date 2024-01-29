@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   render: {fileID: 7388207654708671119}
-  blankBasic: {fileID: 0}
-  blankTrade: {fileID: 0}
+  blankBasic: {fileID: 2100000, guid: 8b3e0ec548b197c419bf3b5fc81e26ee, type: 2}
+  blankTrade: {fileID: 2100000, guid: 89efccbb7d6de844bb158caade5f8478, type: 2}
   blankPolitics: {fileID: 2100000, guid: be735174740afd047a4827ad36d640e0, type: 2}
-  blankScience: {fileID: 0}
+  blankScience: {fileID: 2100000, guid: 62edf6501ec70c3439c2a59e98b30830, type: 2}

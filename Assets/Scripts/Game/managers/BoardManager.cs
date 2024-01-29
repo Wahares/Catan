@@ -33,6 +33,8 @@ public class BoardManager : NetworkBehaviour
 
     public int currentBarbariansPos { get; private set; }
     public readonly int numberOfBarbariansFields = 8;
+    [SerializeField]
+    private BarbariansView barbarians;
 
     private void Awake()
     {
@@ -138,9 +140,9 @@ public class BoardManager : NetworkBehaviour
         bandits.transform.DOJump(Tiles[newPos].transform.position, 0.5f, 1, 0.25f);
     }
 
-    public void moveBarbariansOnServer() { currentBarbariansPos++; moveBarbarians(currentBarbariansPos); }
+    public void moveBarbariansOnServer() { currentBarbariansPos = (currentBarbariansPos + 1) % numberOfBarbariansFields; moveBarbarians(currentBarbariansPos); }
     [ObserversRpc]
-    public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; }
+    public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; barbarians.setValue((float)currentBarbariansPos / numberOfBarbariansFields); }
 
     [ObserversRpc]
     public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)
@@ -345,7 +347,7 @@ public class BoardManager : NetworkBehaviour
             sum += KnightPowerOfPlayer(player.Key);
         return sum < barbariansPower();
     }
-    public List<int> currentPlayersInDanger()
+    public List<int> currentPlayersInDanger() //players in danger of barbarians
     {
         Dictionary<int, int> playersPower = new();
 

@@ -50,10 +50,13 @@ public class DiceController : NetworkBehaviour
         if (action == diceActions.Barbarians)
         {
             BoardManager.instance.moveBarbariansOnServer();
-            if ((BoardManager.instance.currentBarbariansPos + 1) % BoardManager.instance.numberOfBarbariansFields == 0)
+            Debug.Log($"Barbarians moving! {BoardManager.instance.currentBarbariansPos}x{BoardManager.instance.numberOfBarbariansFields}");
+            if (BoardManager.instance.currentBarbariansPos % BoardManager.instance.numberOfBarbariansFields == 0)
             {
+                var playersToPunish = BoardManager.instance.currentPlayersInDanger();
                 for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-                    TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, true);
+                    if (playersToPunish.Contains(TurnManager.turnOrder[i]))
+                        TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, true);
                 if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
                     BoardManager.instance.moveBanditsOnServer(new Vector2Int(0, 0), -1);
             }

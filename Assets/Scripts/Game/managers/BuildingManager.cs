@@ -131,7 +131,7 @@ public class BuildingManager : NetworkBehaviour
         spc.Initialize(clientID, pos);
 
     }
-    [Server]
+    [ServerRpc(RequireOwnership = false)]
     public void SetPieceOnServer(Vector2Int pos, int clientID, int brID)
     {
         if (TurnManager.currentPhase != Phase.Barbarians && TurnManager.currentPhase != Phase.PlacingVillages)

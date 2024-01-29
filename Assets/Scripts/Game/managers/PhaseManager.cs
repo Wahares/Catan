@@ -62,16 +62,14 @@ public class PhaseManager : MonoBehaviour
             return;
         DiceController.instance.allowToRoll();
     }
+
+    [SerializeField]
+    private BarbariansController barbarians;
     public void OnMyBarbariansPhaseTurn()
     {
         if (TurnManager.currentPhase != Phase.Barbarians)
             return;
-        if (!BoardManager.instance.currentPlayersInDanger().Contains(InstanceFinder.ClientManager.Connection.ClientId))
-            return;
-
-        //need to click city to destroy
-        TurnManager.instance.endTurn();
-
+        barbarians.beginMoving();
     }
 
     public void OnMyCasualPhaseTurn()
@@ -100,9 +98,6 @@ public class PhaseManager : MonoBehaviour
         if (TurnManager.currentPhase != Phase.BanditsMove)
             return;
         banditC.beginMoving();
-
-        //need to move bandits;
-
     }
     public void OnMySpecialCardsPhaseTurn()
     {
