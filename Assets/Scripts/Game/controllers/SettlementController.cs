@@ -53,7 +53,7 @@ public class SettlementController : SinglePieceController
         foreach (var piece in pieces)
             if (piece.pieceOwnerID == GameManager.instance.LocalConnection.ClientId)
                 return true;
-        if (TurnManager.currentPhase == Phase.PlacingVillages)
+        if (TurnManager.currentPhase == Phase.FreeBuild)
             return true;
         return false;
     }

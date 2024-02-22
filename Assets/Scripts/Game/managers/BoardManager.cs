@@ -32,7 +32,7 @@ public class BoardManager : NetworkBehaviour
     private GameObject bandits;
 
     public int currentBarbariansPos { get; private set; }
-    public readonly int numberOfBarbariansFields = 8;
+    public readonly int numberOfBarbariansFields = 2;//8
     [SerializeField]
     private BarbariansView barbarians;
 
@@ -103,7 +103,7 @@ public class BoardManager : NetworkBehaviour
         return true;
     }
     public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
-    public void DoBanditsEffect() { }
+    public void DoBanditsEffect() { bandits.transform.DOComplete(); bandits.transform.DOShakeRotation(0.5f,1f); }
     public bool banditsExsist() => currentBanditPos != new Vector2Int(-1, -1);
 
     [ServerRpc(RequireOwnership = false)]

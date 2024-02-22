@@ -78,25 +78,9 @@ public class BuildingManager : NetworkBehaviour
             return;
         BuildPiece(pos ?? Vector2Int.zero, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(currentRecipe), LocalConnection.ClientId);
 
-        if (TurnManager.currentPhase == Phase.PlacingVillages)
-        {
-            switch (currentRecipe.piece.GetComponent<SinglePieceController>().pieceType)
-            {
-                case PieceType.Road:
-                    resetBuilding();
-                    TurnManager.instance.endTurn();
-                    return;
-                case PieceType.Settlement:
-                    resetBuilding();
-                    BeginBuilding(roadRecipe);
-                    return;
-                case PieceType.City:
-                    resetBuilding();
-                    BeginBuilding(roadRecipe);
-                    return;
-            }
-        }
         resetBuilding();
+        if (TurnManager.currentPhase == Phase.FreeBuild)
+            TurnManager.instance.endTurn();
     }
     private void resetBuilding()
     {
@@ -107,7 +91,7 @@ public class BuildingManager : NetworkBehaviour
     }
     private void cancelBuilding()
     {
-        if(TurnManager.currentPhase != Phase.PlacingVillages)
+        if (TurnManager.currentPhase == Phase.CasualRound)
             resetBuilding();
     }
     [ServerRpc(RequireOwnership = false)]
@@ -117,7 +101,7 @@ public class BuildingManager : NetworkBehaviour
             BuildPieceOnClients(pos, brID, clientID);
 
         BuildingRecipe br = ObjectDefiner.instance.availableBuildingRecipes[brID];
-        if (TurnManager.currentPhase != Phase.PlacingVillages)
+        if (TurnManager.currentPhase != Phase.FreeBuild)
             foreach (var mat in br.materials)
                 PlayerInventoriesManager.instance.ChangeCardQuantity(clientID, mat.card.ID, -mat.number);
     }
@@ -134,7 +118,7 @@ public class BuildingManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SetPieceOnServer(Vector2Int pos, int clientID, int brID)
     {
-        if (TurnManager.currentPhase != Phase.Barbarians && TurnManager.currentPhase != Phase.PlacingVillages)
+        if (TurnManager.currentPhase != Phase.Barbarians && TurnManager.currentPhase != Phase.FreeBuild)
             return;
         BuildPieceOnClients(pos, brID, clientID);
     }

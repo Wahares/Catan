@@ -21,7 +21,7 @@ public class BarbariansController : MonoBehaviour
         TurnManager.OnMyTurnEnded -= cancelAction;
     }
 
-    public void beginMoving()
+    public void beginDestroying()
     {
         if (!TurnManager.isMyTurn)
             return;
@@ -36,12 +36,16 @@ public class BarbariansController : MonoBehaviour
     private void hover(Vector2Int? pos, PiecePlaceType placeType)
     {
         preview.position = Vector3.down * 10;
-        if (TurnManager.currentPhase != Phase.BanditsMove)
+        if (TurnManager.currentPhase != Phase.Barbarians)
             return;
         if (placeType != PiecePlaceType.Crossing)
             return;
-        else
-            preview.position = BoardManager.instance.crossings[pos ?? Vector2Int.zero].transform.position;
+        CrossingController cc = BoardManager.instance.crossings[pos ?? Vector2Int.zero];
+        if ((cc.currentPiece?.pieceType ?? PieceType.Unset) != PieceType.City)
+            return;
+        if (cc.currentPiece.pieceOwnerID != InstanceFinder.ClientManager.Connection.ClientId)
+            return;
+        preview.position = cc.transform.position;
     }
 
     public bool isListening = false;
@@ -51,6 +55,12 @@ public class BarbariansController : MonoBehaviour
         if (placeType != PiecePlaceType.Crossing)
             return;
         if (!TurnManager.isMyTurn)
+            return;
+
+        CrossingController cc = BoardManager.instance.crossings[pos ?? Vector2Int.zero];
+        if ((cc.currentPiece?.pieceType ?? PieceType.Unset) != PieceType.City)
+            return;
+        if (cc.currentPiece.pieceOwnerID != InstanceFinder.ClientManager.Connection.ClientId)
             return;
 
         BuildingManager.instance.SetPieceOnServer(pos ?? Vector2Int.zero

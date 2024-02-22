@@ -56,7 +56,7 @@ public class DiceController : NetworkBehaviour
                 var playersToPunish = BoardManager.instance.currentPlayersInDanger();
                 for (int i = 0; i < PlayerManager.numOfPlayers; i++)
                     if (playersToPunish.Contains(TurnManager.turnOrder[i]))
-                        TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, true);
+                        TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, TurnManager.TIME_LIMIT / 4, true);
                 if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
                     BoardManager.instance.moveBanditsOnServer(new Vector2Int(0, 0), -1);
             }
@@ -64,18 +64,18 @@ public class DiceController : NetworkBehaviour
         if (basic + red == 7)
         {
             for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-                TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, i, true);
+                TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, i, TurnManager.TIME_LIMIT / 4, true);
 
             if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
                 Debug.Log("Bandits are not yet on the board - skipping BanditsMove phase...");
             else
-                TurnManager.instance.EnqueuePhase(Phase.BanditsMove, TurnManager.currentTurnID, true);
+                TurnManager.instance.EnqueuePhase(Phase.BanditsMove, TurnManager.currentTurnID, TurnManager.TIME_LIMIT / 4, true);
         }
 
         for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-            TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, true);
+            TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, TurnManager.TIME_LIMIT / 4, true);
 
-        TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, true);
+        TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, TurnManager.TIME_LIMIT, true);
         TurnManager.instance.ForceEndTurn();
     }
 

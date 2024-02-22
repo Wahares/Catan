@@ -29,6 +29,7 @@ public class TurnManager : NetworkBehaviour
 
     public static int currentTurnID;
     public static Phase currentPhase { get; private set; }
+    public static int currentPhaseArgs { get; private set; }
 
 
     [field: SerializeField]
@@ -121,10 +122,16 @@ public class TurnManager : NetworkBehaviour
     private void startPlacingPhase()
     {
         for (int i = 0; i < turnOrder.Length; i++)
-            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i, true);
+        {
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4,0, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8,1, true);
+        }
         for (int i = 0; i < turnOrder.Length; i++)
-            EnqueuePhase(Phase.PlacingVillages, turnOrder.Length - 1 - i, true);
-        EnqueuePhase(Phase.BeforeRoll, 0, true);
+        {
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4,2, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8,1, true);
+        }
+        EnqueuePhase(Phase.BeforeRoll, 0, TIME_LIMIT / 4, true);
 
         calcNewTurn();
     }
@@ -166,16 +173,21 @@ public class TurnManager : NetworkBehaviour
     [Serializable]
     public class TurnConfiguration
     {
-        public Phase phase; public int turnID;
-        public TurnConfiguration(Phase phase, int turnID) { this.phase = phase; this.turnID = turnID; }
+        public Phase phase; public int turnID; public float time; public int args;
+        public TurnConfiguration(Phase phase, int turnID, float time) : this(phase, turnID, time, 0) { }
+        public TurnConfiguration(Phase phase, int turnID, float time, int args) { this.phase = phase; this.turnID = turnID; this.time = time; this.args = args; }
     }
     public List<TurnConfiguration> enqueuedPhases = new();
-    public void EnqueuePhase(Phase ph, int turnID, bool toBack)
+    public void EnqueuePhase(Phase ph, int turnID, float time, bool toBack)
+    {
+        EnqueuePhase(ph, turnID, time, -1, toBack);
+    }
+    public void EnqueuePhase(Phase ph, int turnID, float time, int args, bool toBack)
     {
         if (toBack)
-            enqueuedPhases.Add(new TurnConfiguration(ph, turnID));
+            enqueuedPhases.Add(new TurnConfiguration(ph, turnID, time,args));
         else
-            enqueuedPhases.Insert(0, new TurnConfiguration(ph, turnID));
+            enqueuedPhases.Insert(0, new TurnConfiguration(ph, turnID, time,args));
     }
     [ServerRpc(RequireOwnership = false)]
     private void AskServerForNextTurn(Phase phase, int clientID)
@@ -193,7 +205,7 @@ public class TurnManager : NetworkBehaviour
             if (enqueuedPhases.Count == 0)
             {
                 Debug.Log("adding next roll turn");
-                enqueuedPhases.Add(new TurnConfiguration(Phase.BeforeRoll, nextTurnID));
+                enqueuedPhases.Add(new TurnConfiguration(Phase.BeforeRoll, nextTurnID, TIME_LIMIT / 4));
             }
 
             TurnConfiguration tc = enqueuedPhases[0];
@@ -201,9 +213,10 @@ public class TurnManager : NetworkBehaviour
 
             currentTurnID = tc.turnID;
             currentPhase = tc.phase;
+            currentPhaseArgs = tc.args;
             if (PlayerManager.playerAvailable(turnOrder[tc.turnID]))
             {
-                startNewTurn(tc.turnID, tc.phase);
+                startNewTurn(tc.turnID, tc.phase, tc.time,tc.args);
                 break;
             }
             else
@@ -217,11 +230,12 @@ public class TurnManager : NetworkBehaviour
     }
 
     [ObserversRpc]
-    private void startNewTurn(int turnID, Phase phase)
+    private void startNewTurn(int turnID, Phase phase, float time,int args)
     {
         currentTurnID = turnID;
         currentPhase = phase;
-        timer = (phase == Phase.CasualRound ? 1 : 0.25f) * TIME_LIMIT;
+        currentPhaseArgs = args;
+        timer = time;
         try
         {
             Debug.Log($"It's [{turnOrder[currentTurnID]}]:{Steamworks.SteamFriends.GetFriendPersonaName((Steamworks.CSteamID)PlayerManager.instance.playerSteamIDs[turnOrder[currentTurnID]])}'s turn at {phase} phase");
@@ -239,7 +253,5 @@ public class TurnManager : NetworkBehaviour
                 calcNewTurn();
     }
 
-
-
 }
-public enum Phase { GettingReady, PlacingVillages, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards }
+public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards }

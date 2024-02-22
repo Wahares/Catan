@@ -8,6 +8,9 @@ public class PhaseManager : MonoBehaviour
 
     private void Awake()
     {
+        barbarians = GetComponent<BarbariansController>();
+        banditC = GetComponent<BanditsController>();
+
         TurnManager.OnMyTurnStarted += OnMyBuildingPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyRollPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyBarbariansPhaseTurn;
@@ -49,12 +52,20 @@ public class PhaseManager : MonoBehaviour
     [SerializeField] private BuildingRecipe settlementBR, cityBR, roadBR;
     public void OnMyBuildingPhaseTurn()
     {
-        if (TurnManager.currentPhase != Phase.PlacingVillages)
+        if (TurnManager.currentPhase != Phase.FreeBuild)
             return;
-        if (BoardManager.instance.numberOfPieces(InstanceFinder.ClientManager.Connection.ClientId, PieceType.Settlement) == 0)
-            BuildingManager.instance.BeginBuilding(settlementBR);
-        else
-            BuildingManager.instance.BeginBuilding(cityBR);
+        switch (TurnManager.currentPhaseArgs)
+        {
+            case 0:
+                BuildingManager.instance.BeginBuilding(settlementBR);
+                break;
+            case 1:
+                BuildingManager.instance.BeginBuilding(roadBR);
+                break;
+            case 2:
+                BuildingManager.instance.BeginBuilding(cityBR);
+                break;
+        }
     }
     public void OnMyRollPhaseTurn()
     {
@@ -63,13 +74,12 @@ public class PhaseManager : MonoBehaviour
         DiceController.instance.allowToRoll();
     }
 
-    [SerializeField]
     private BarbariansController barbarians;
     public void OnMyBarbariansPhaseTurn()
     {
         if (TurnManager.currentPhase != Phase.Barbarians)
             return;
-        barbarians.beginMoving();
+        barbarians.beginDestroying();
     }
 
     public void OnMyCasualPhaseTurn()
@@ -91,7 +101,6 @@ public class PhaseManager : MonoBehaviour
         else
             TurnManager.instance.endTurn();
     }
-    [SerializeField]
     private BanditsController banditC;
     public void OnMyBanditsMovePhaseTurn()
     {
@@ -119,7 +128,7 @@ public class PhaseManager : MonoBehaviour
 
     public void OnBuildingTimeLimitReached(int clientID, Phase endedPhase)
     {
-        if (endedPhase != Phase.PlacingVillages)
+        if (endedPhase != Phase.FreeBuild)
             return;
 
         for (int i = 0; i < 9999; i++)
@@ -128,39 +137,37 @@ public class PhaseManager : MonoBehaviour
             CrossingController cc = BoardManager.instance.crossings.Values.ElementAt(Random.Range(0, BoardManager.instance.crossings.Count));
             if (cc.currentPiece != null)
                 continue;
-            if (BoardManager.instance.numberOfPieces(clientID, PieceType.Road) == 0)
-            {
-                if (BoardManager.instance.numberOfPieces(clientID, PieceType.Settlement) == 0)
-                    BuildingManager.instance.SetPieceOnServer(cc.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(settlementBR));
-                else
-                    cc = BoardManager.instance
-                        .crossings.Values
-                        .Where(e => (e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.Settlement && (e.currentPiece?.pieceOwnerID ?? -1) == clientID)
-                        .ElementAt(0);
-            }
-            else
-            {
-                if (BoardManager.instance.numberOfPieces(clientID, PieceType.City) == 0)
-                    BuildingManager.instance.SetPieceOnServer(cc.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(cityBR));
-                else
-                    cc = BoardManager.instance
-                        .crossings.Values
-                        .Where(e => (e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.City && (e.currentPiece?.pieceOwnerID ?? -1) == clientID)
-                        .ElementAt(0);
-            }
-            if (BoardManager.instance.numberOfPieces(clientID, PieceType.Road) == 2)
-                break;
-            List<RoadController> roadsControllers = cc.GetRoadsControllers();
+
             bool did = false;
-            foreach (var road in roadsControllers)
+            switch (TurnManager.currentPhaseArgs)
             {
-                if (road.currentPiece == null)
-                {
-                    BuildingManager.instance.SetPieceOnServer(road.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(roadBR));
-                    did = true;
+                case 0:
+                    BuildingManager.instance.SetPieceOnServer(cc.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(settlementBR));
                     break;
-                }
+                case 1:
+                    var potentialCrossings = BoardManager.instance
+                        .crossings.Values
+                        .Where(e => ((e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.Settlement 
+                        || (e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.City) 
+                        && (e.currentPiece?.pieceOwnerID ?? -1) == clientID)
+                        .ToList();
+                    cc = potentialCrossings.ElementAt(Random.Range(0, potentialCrossings.Count));
+                    List<RoadController> roadsControllers = cc.GetRoadsControllers();
+                    foreach (var road in roadsControllers)
+                    {
+                        if (road.currentPiece == null)
+                        {
+                            BuildingManager.instance.SetPieceOnServer(road.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(roadBR));
+                            did = true;
+                            break;
+                        }
+                    }
+                    break;
+                case 2:
+                    BuildingManager.instance.SetPieceOnServer(cc.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(cityBR));
+                    break;
             }
+            
             if (did)
                 break;
 
