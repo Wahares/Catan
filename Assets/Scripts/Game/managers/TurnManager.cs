@@ -169,7 +169,6 @@ public class TurnManager : NetworkBehaviour
 
 
 
-
     [Serializable]
     public class TurnConfiguration
     {

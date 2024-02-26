@@ -60,4 +60,8 @@ public class SettlementController : SinglePieceController
 
     public virtual int getVictoryWeight() { return 1; }
 
+    public bool CanGiveTradingFromPort { get; private set; } = false;
+    public void GiveTradingPermit() => CanGiveTradingFromPort = true;
+
+
 }

@@ -12,19 +12,25 @@ public class PlayerCardsOptionsController : MonoBehaviour
     [SerializeField]
     private GameObject buttonPrefab;
 
+    private HashSet<ExchangeGiver> registeredGivers;
+
     private void Awake()
     {
         possibleExchanges = new();
         visibleButtons = new();
         selectedCards = new();
+        registeredGivers = new();
     }
     private void Start()
     {
         piv = PlayerInventoriesManager.instance.localInventory;
     }
-
-
-    private List<RecipedCard> possibleExchanges;
+    public void RegisterExchangeGiver(ExchangeGiver EG)
+    {
+        registeredGivers.Add(EG);
+    }
+    
+    private HashSet<RecipedCard> possibleExchanges;
 
     private List<CardSO> selectedCards;
 
@@ -75,8 +81,13 @@ public class PlayerCardsOptionsController : MonoBehaviour
         }
         foreach (var option in ObjectDefiner.instance.availableTradings)
         {
+            if (option is PortTradingOption)
+                continue;
             if (option.CanUse(selectedCards, GameManager.instance.LocalConnection.ClientId))
                 possibleExchanges.Add(option);
         }
+        foreach (var giver in registeredGivers)
+            giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId);
+        
     }
 }

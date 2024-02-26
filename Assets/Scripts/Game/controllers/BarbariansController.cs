@@ -28,7 +28,7 @@ public class BarbariansController : MonoBehaviour
 
         cc.currentFocusPieceType = PiecePlaceType.Crossing;
         CursorController.Hovering += hover;
-        CursorController.OnClicked += finalizeMove;
+        CursorController.OnClicked += finalizeDestroy;
         isListening = true;
 
     }
@@ -36,31 +36,13 @@ public class BarbariansController : MonoBehaviour
     private void hover(Vector2Int? pos, PiecePlaceType placeType)
     {
         preview.position = Vector3.down * 10;
-        if (TurnManager.currentPhase != Phase.Barbarians)
-            return;
-        if (placeType != PiecePlaceType.Crossing)
-            return;
-        CrossingController cc = BoardManager.instance.crossings[pos ?? Vector2Int.zero];
-        if ((cc.currentPiece?.pieceType ?? PieceType.Unset) != PieceType.City)
-            return;
-        if (cc.currentPiece.pieceOwnerID != InstanceFinder.ClientManager.Connection.ClientId)
+        if (!IsValid(pos, placeType))
             return;
         preview.position = cc.transform.position;
     }
-
-    public bool isListening = false;
-
-    private void finalizeMove(Vector2Int? pos, PiecePlaceType placeType)
+    private void finalizeDestroy(Vector2Int? pos, PiecePlaceType placeType)
     {
-        if (placeType != PiecePlaceType.Crossing)
-            return;
-        if (!TurnManager.isMyTurn)
-            return;
-
-        CrossingController cc = BoardManager.instance.crossings[pos ?? Vector2Int.zero];
-        if ((cc.currentPiece?.pieceType ?? PieceType.Unset) != PieceType.City)
-            return;
-        if (cc.currentPiece.pieceOwnerID != InstanceFinder.ClientManager.Connection.ClientId)
+        if (!IsValid(pos, placeType))
             return;
 
         BuildingManager.instance.SetPieceOnServer(pos ?? Vector2Int.zero
@@ -72,13 +54,32 @@ public class BarbariansController : MonoBehaviour
         cancelAction();
         TurnManager.instance.endTurn();
     }
+
+    public bool isListening = false;
+    private bool IsValid(Vector2Int? pos, PiecePlaceType placeType)
+    {
+        if (TurnManager.currentPhase != Phase.Barbarians)
+            return false;
+        if (placeType != PiecePlaceType.Crossing)
+            return false;
+        SinglePieceController piece = BoardManager.instance.crossings[pos ?? Vector2Int.zero].currentPiece;
+        if (piece == null)
+            return false;
+        if (piece.pieceType != PieceType.City)
+            return false;
+        if ((piece as CityController).isMetropoly)
+            return false;
+        if (piece.pieceOwnerID != InstanceFinder.ClientManager.Connection.ClientId)
+            return false;
+        return true;
+    }
     public void cancelAction()
     {
         if (!isListening)
             return;
         isListening = false;
         CursorController.Hovering -= hover;
-        CursorController.OnClicked -= finalizeMove;
+        CursorController.OnClicked -= finalizeDestroy;
         preview.position = Vector3.down * 10;
     }
 

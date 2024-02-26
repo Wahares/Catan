@@ -12,6 +12,7 @@ public class BoardManager : NetworkBehaviour
     private const float TILE_DELAY = 0.05f;
     private const float TILE_FLY_SPEED = 1f;
     public static int MapSize = 3;
+    public static bool RandomizeTradingPorts = false;
 
     [SerializeField]
     private GameObject tilePrefab, borderPrefab, borderFillerPrefab, crossingPrefab, roadPrefab;
@@ -43,26 +44,31 @@ public class BoardManager : NetworkBehaviour
         currentBanditPos = new Vector2Int(-1, -1);
         bandits.transform.position = Vector3.down * 10;
         DiceController.instance.OnDiceRolled += UseDiceData;
+        TurnManager.OnAnyTurnStarted += MakeSettlementsAbleToGiveTradings;
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
         GameManager.OnGameStarted += createBoard;
     }
     private void OnDestroy()
     {
+        TurnManager.OnAnyTurnStarted -= MakeSettlementsAbleToGiveTradings;
         OnBoardInitialized = null;
     }
     public void createBoard()
     {
-        int[] diceNums, tileTypes;
-        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes))
-            CreateBoardFromData(MapSize, diceNums, tileTypes);
+        int[] diceNums, tileTypes,tradingPorts;
+        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes,out tradingPorts))
+            CreateBoardFromData(MapSize, diceNums, tileTypes, tradingPorts);
     }
-    public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes)
+    public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes, out int[] tradingPorts)
     {
         int numberOfTiles = TilesOnBoard(mapSize) - 1;
         tileTypes = new int[numberOfTiles];
         diceNums = new int[numberOfTiles];
 
+        tradingPorts = new int[CrossingsInRing(mapSize)];
+        for (int i = 0; i < tradingPorts.Length; i++)
+            tradingPorts[i] = -1;
 
         List<TileType> availableTiles = new();
 
@@ -100,59 +106,22 @@ public class BoardManager : NetworkBehaviour
             if (diceNums[i] == 0 || tileTypes[i] == 0)
                 throw new Exception("Board data containers not fully generated!");
 
+        //generate port data ------------------------------------
+
+
+
+
         return true;
     }
-    public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
-    public void DoBanditsEffect() { bandits.transform.DOComplete(); bandits.transform.DOShakeRotation(0.5f,1f); }
-    public bool banditsExsist() => currentBanditPos != new Vector2Int(-1, -1);
-
-    [ServerRpc(RequireOwnership = false)]
-    public void moveBanditsOnServer(Vector2Int newPos, int moverID)
-    {
-        moveBandits(newPos);
-        if (moverID == -1)
-            return;
-        List<SettlementController> settlements = Tiles[newPos]
-            .getNearbyCrossings()
-            .Select(e => e.GetComponent<SettlementController>())
-            .Where(e => e != null)
-            .ToList();
-        foreach (var settlement in settlements)
-        {
-            if (settlement.pieceOwnerID != moverID)
-            {
-                Dictionary<int, int> cardsInHand = PlayerInventoriesManager.instance.getPlayersCardsInHand(settlement.pieceOwnerID);
-                if (cardsInHand.Count != 0)
-                {
-                    int id = cardsInHand.ElementAt(UnityEngine.Random.Range(0, cardsInHand.Count)).Key;
-                    PlayerInventoriesManager.instance.ChangeCardQuantity(settlement.pieceOwnerID, id, -1);
-                    PlayerInventoriesManager.instance.ChangeCardQuantity(moverID, id, 1);
-                }
-            }
-        }
-    }
-
     [ObserversRpc]
-    private void moveBandits(Vector2Int newPos)
-    {
-        currentBanditPos = newPos;
-        bandits.transform.DOComplete();
-        bandits.transform.DOJump(Tiles[newPos].transform.position, 0.5f, 1, 0.25f);
-    }
-
-    public void moveBarbariansOnServer() { currentBarbariansPos = (currentBarbariansPos + 1) % numberOfBarbariansFields; moveBarbarians(currentBarbariansPos); }
-    [ObserversRpc]
-    public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; barbarians.setValue((float)currentBarbariansPos / numberOfBarbariansFields); }
-
-    [ObserversRpc]
-    public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes)
+    public void CreateBoardFromData(int mapSize, int[] diceNums, int[] tileTypes, int[] tradingPorts)
     {
         OnBoardInitialized += () => { Debug.Log("Board Initialized"); };
 
         Tiles = new();
         rollActions = new();
 
-
+        //borders
         Vector3 borderPos = -Vector3.right * HEX_FACTOR * mapSize;
         float borderAngle = 30;
         for (int i = 0; i < TilesInRing(mapSize); i++)
@@ -170,7 +139,7 @@ public class BoardManager : NetworkBehaviour
         }
 
 
-
+        //tiles
         int tileID = 0;
         float nextTileDelay = TILE_DELAY * 2;
         for (int ring = 0; ring < mapSize; ring++)
@@ -223,7 +192,7 @@ public class BoardManager : NetworkBehaviour
             }
         }
 
-
+        //crossings and roads
         crossings = new();
         roads = new();
         for (int i = 0; i < MapSize; i++)
@@ -247,10 +216,54 @@ public class BoardManager : NetworkBehaviour
             }
         }
 
+        //ports  ------------------------------------------------------------------
+
 
 
         Invoke(nameof(BeginGame), nextTileDelay + TILE_FLY_SPEED);
     }
+
+    public bool IsTileBlockedByBandits(Vector2Int pos) => pos == currentBanditPos;
+    public void DoBanditsEffect() { bandits.transform.DOComplete(); bandits.transform.DOShakeRotation(0.5f, 1f); }
+    public bool banditsExsist() => currentBanditPos != new Vector2Int(-1, -1);
+
+    [ServerRpc(RequireOwnership = false)]
+    public void moveBanditsOnServer(Vector2Int newPos, int moverID)
+    {
+        moveBandits(newPos);
+        if (moverID == -1)
+            return;
+        List<SettlementController> settlements = Tiles[newPos]
+            .getNearbyCrossings()
+            .Select(e => e.GetComponent<SettlementController>())
+            .Where(e => e != null)
+            .ToList();
+        foreach (var settlement in settlements)
+        {
+            if (settlement.pieceOwnerID != moverID)
+            {
+                Dictionary<int, int> cardsInHand = PlayerInventoriesManager.instance.getPlayersCardsInHand(settlement.pieceOwnerID);
+                if (cardsInHand.Count != 0)
+                {
+                    int id = cardsInHand.ElementAt(UnityEngine.Random.Range(0, cardsInHand.Count)).Key;
+                    PlayerInventoriesManager.instance.ChangeCardQuantity(settlement.pieceOwnerID, id, -1);
+                    PlayerInventoriesManager.instance.ChangeCardQuantity(moverID, id, 1);
+                }
+            }
+        }
+    }
+
+    [ObserversRpc]
+    private void moveBandits(Vector2Int newPos)
+    {
+        currentBanditPos = newPos;
+        bandits.transform.DOComplete();
+        bandits.transform.DOJump(Tiles[newPos].transform.position, 0.5f, 1, 0.25f);
+    }
+
+    public void moveBarbariansOnServer() { currentBarbariansPos = (currentBarbariansPos + 1) % numberOfBarbariansFields; moveBarbarians(currentBarbariansPos); }
+    [ObserversRpc]
+    public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; barbarians.setValue((float)currentBarbariansPos / numberOfBarbariansFields); }
 
     private void BeginGame()
     {
@@ -370,6 +383,18 @@ public class BoardManager : NetworkBehaviour
 
         }
         return playersPower.Where(e => e.Value == lowest).Select(e => e.Key).ToList();
+    }
+    private void MakeSettlementsAbleToGiveTradings(int clientID, Phase phase)
+    {
+        foreach (var crossing in crossings)
+        {
+            SinglePieceController spc = crossing.Value.currentPiece;
+            if (spc == null)
+                continue;
+            if (spc.pieceOwnerID != clientID)
+                continue;
+            (spc as SettlementController)?.GiveTradingPermit();
+        }
     }
 
     public List<T> GetPlayerPieces<T>(int clientID, PiecePlaceType type)
