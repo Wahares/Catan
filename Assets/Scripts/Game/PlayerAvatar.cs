@@ -6,7 +6,8 @@ public class PlayerAvatar : MonoBehaviour
     public MeshRenderer render;
     [field:SerializeField]
     public PlayerInventoryView inventoryView { get; private set; }
-
+    [field: SerializeField]
+    public CommodityUpgradeView upgradeView { get; private set; }
     public PlayerAvatar Initialize(ulong steamID)
     {
         render.material = new Material(render.material);

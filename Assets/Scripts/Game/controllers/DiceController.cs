@@ -71,9 +71,13 @@ public class DiceController : NetworkBehaviour
             else
                 TurnManager.instance.EnqueuePhase(Phase.BanditsMove, TurnManager.currentTurnID, TurnManager.TIME_LIMIT / 4, true);
         }
-
-        for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-            TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, TurnManager.TIME_LIMIT / 4, true);
+        if (action != diceActions.Barbarians)
+            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+            {
+                int codedSpecialCardsArgs = red;
+                codedSpecialCardsArgs |= (int)action << 3;
+                TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, TurnManager.TIME_LIMIT / 4, codedSpecialCardsArgs, true);
+            }
 
         TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, TurnManager.TIME_LIMIT, true);
         TurnManager.instance.ForceEndTurn();

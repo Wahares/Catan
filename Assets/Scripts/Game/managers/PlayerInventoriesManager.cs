@@ -1,6 +1,8 @@
 using FishNet;
+using FishNet.Connection;
 using FishNet.Object;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerInventoriesManager : NetworkBehaviour
@@ -16,12 +18,21 @@ public class PlayerInventoriesManager : NetworkBehaviour
     public PlayerInventoryView localInventory { get; private set; }
 
 
+    private Dictionary<SpecialCard, int> numberOfSpecialCardsLeft = new();
     private void Awake()
     {
         instance = this;
-        //if (InstanceFinder.NetworkManager.IsServer)
         GameManager.OnGameStarted += setupPlayerInventories;
         GameManager.OnGameStarted += setupInventoriesVisuals;
+        if (InstanceFinder.NetworkManager.IsServer)
+            foreach (var card in ObjectDefiner.instance.equipableCards)
+            {
+                if (card.CardType != cardType.Special)
+                    continue;
+                if (card as SpecialCard == null)
+                    continue;
+                numberOfSpecialCardsLeft.Add(card as SpecialCard, (card as SpecialCard).numberInDeck);
+            }
     }
     private void setupPlayerInventories()
     {
@@ -91,6 +102,57 @@ public class PlayerInventoriesManager : NetworkBehaviour
             else
                 avatar.Value.inventoryView.initialize(false);
         }
+    }
+
+
+
+
+    public void RollMeSpecialCard(growthType type)
+    {
+        RollSpecialCardToPlayer(type);
+    }
+    [ServerRpc]
+    private void RollSpecialCardToPlayer(growthType type, NetworkConnection nc = null)
+    {
+        List<SpecialCard> cardsLeft = numberOfSpecialCardsLeft
+            .Where(e => e.Key.sourceType == type)
+            .SelectMany(e => Enumerable.Repeat(e.Key, e.Value)).ToList();
+        SpecialCard card = null;
+        if (cardsLeft.Count > 0)
+        {
+            card = cardsLeft[Random.Range(0, cardsLeft.Count)];
+            numberOfSpecialCardsLeft[card]--;
+            ChangeCardQuantity(nc.ClientId, card.ID, -1);
+        }
+        TurnManager.instance.ForceEndTurn();
+    }
+
+    public int playerNumberOfSpecialCards(int clientID, growthType type)
+    {
+        int[] inventory = playerInventories[clientID];
+        int number = 0;
+        for (int i = 0; i < inventory.Length; i++)
+            if(ObjectDefiner.instance.equipableCards[i].CardType == cardType.Special)
+                number += inventory[i];
+        return number;
+    }
+    public void SpecialCardUsed(SpecialCard card)
+    {
+        numberOfSpecialCardsLeft[card]++;
+    }
+    public void BeginSpecialCardRemove(growthType type)
+    {
+        Debug.Log("a se usuwam kartê hehe");
+
+        instance.RollMeSpecialCard(type);
+    }
+    public void removeRandomSpecial(int clientID, growthType type)
+    {
+
+    }
+    public void giveRandomSpecial(int clientID, growthType type)
+    {
+
     }
 
 

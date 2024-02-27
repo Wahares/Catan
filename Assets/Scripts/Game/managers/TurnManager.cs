@@ -78,7 +78,8 @@ public class TurnManager : NetworkBehaviour
         if (timer < 0)
         {
             Debug.LogWarning("Force ending current turn due to time limit...");
-            OnClientTimeReached?.Invoke(turnOrder[currentTurnID], currentPhase);
+            if (InstanceFinder.IsServer)
+                OnClientTimeReached?.Invoke(turnOrder[currentTurnID], currentPhase);
             timer = Mathf.Infinity;
         }
     }
@@ -123,13 +124,13 @@ public class TurnManager : NetworkBehaviour
     {
         for (int i = 0; i < turnOrder.Length; i++)
         {
-            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4,0, true);
-            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8,1, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4, 0, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8, 1, true);
         }
         for (int i = 0; i < turnOrder.Length; i++)
         {
-            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4,2, true);
-            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8,1, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 4, 2, true);
+            EnqueuePhase(Phase.FreeBuild, turnOrder.Length - 1 - i, TIME_LIMIT / 8, 1, true);
         }
         EnqueuePhase(Phase.BeforeRoll, 0, TIME_LIMIT / 4, true);
 
@@ -184,9 +185,9 @@ public class TurnManager : NetworkBehaviour
     public void EnqueuePhase(Phase ph, int turnID, float time, int args, bool toBack)
     {
         if (toBack)
-            enqueuedPhases.Add(new TurnConfiguration(ph, turnID, time,args));
+            enqueuedPhases.Add(new TurnConfiguration(ph, turnID, time, args));
         else
-            enqueuedPhases.Insert(0, new TurnConfiguration(ph, turnID, time,args));
+            enqueuedPhases.Insert(0, new TurnConfiguration(ph, turnID, time, args));
     }
     [ServerRpc(RequireOwnership = false)]
     private void AskServerForNextTurn(Phase phase, int clientID)
@@ -215,7 +216,7 @@ public class TurnManager : NetworkBehaviour
             currentPhaseArgs = tc.args;
             if (PlayerManager.playerAvailable(turnOrder[tc.turnID]))
             {
-                startNewTurn(tc.turnID, tc.phase, tc.time,tc.args);
+                startNewTurn(tc.turnID, tc.phase, tc.time, tc.args);
                 break;
             }
             else
@@ -229,7 +230,7 @@ public class TurnManager : NetworkBehaviour
     }
 
     [ObserversRpc]
-    private void startNewTurn(int turnID, Phase phase, float time,int args)
+    private void startNewTurn(int turnID, Phase phase, float time, int args)
     {
         currentTurnID = turnID;
         currentPhase = phase;
@@ -253,4 +254,4 @@ public class TurnManager : NetworkBehaviour
     }
 
 }
-public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards }
+public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards, RemovingSpecialCards }

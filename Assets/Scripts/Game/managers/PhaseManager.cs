@@ -18,6 +18,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted += OnMyBanditsPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyBanditsMovePhaseTurn;
         TurnManager.OnMyTurnStarted += OnMySpecialCardsPhaseTurn;
+        TurnManager.OnMyTurnStarted += OnMyRemovingSpecialCardsPhaseTurn;
 
 
         TurnManager.OnClientTimeReached += OnBuildingTimeLimitReached;
@@ -27,6 +28,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnClientTimeReached += OnBanditsTimeLimitReached;
         TurnManager.OnClientTimeReached += OnBanditsMoveTimeLimitReached;
         TurnManager.OnClientTimeReached += OnSpecialCardsTimeLimitReached;
+        TurnManager.OnClientTimeReached += OnRemovingSpecialCardsTimeLimitReached;
     }
     private void OnDestroy()
     {
@@ -37,6 +39,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted -= OnMyBanditsPhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMyBanditsMovePhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMySpecialCardsPhaseTurn;
+        TurnManager.OnMyTurnStarted -= OnMyRemovingSpecialCardsPhaseTurn;
 
 
         TurnManager.OnClientTimeReached -= OnBuildingTimeLimitReached;
@@ -46,6 +49,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnClientTimeReached -= OnBanditsTimeLimitReached;
         TurnManager.OnClientTimeReached -= OnBanditsMoveTimeLimitReached;
         TurnManager.OnClientTimeReached -= OnSpecialCardsTimeLimitReached;
+        TurnManager.OnClientTimeReached -= OnRemovingSpecialCardsTimeLimitReached;
     }
 
 
@@ -112,7 +116,28 @@ public class PhaseManager : MonoBehaviour
     {
         if (TurnManager.currentPhase != Phase.GettingSpecialCards)
             return;
-        TurnManager.instance.endTurn();
+        int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
+        growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
+        if (CommodityUpgradeManager.instance.getUpgradeLevel(InstanceFinder.ClientManager.Connection.ClientId, type) + 1 >= diceNum)
+            PlayerInventoriesManager.instance.RollMeSpecialCard(type);
+        else
+            TurnManager.instance.endTurn();
+    }
+    public void OnMyRemovingSpecialCardsPhaseTurn()
+    {
+        if (TurnManager.currentPhase != Phase.RemovingSpecialCards)
+            return;
+        int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
+        growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
+        if (CommodityUpgradeManager.instance.getUpgradeLevel(InstanceFinder.ClientManager.Connection.ClientId, type) + 1 >= diceNum)
+        {
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
+                PlayerInventoriesManager.instance.BeginSpecialCardRemove(type);
+            else
+                TurnManager.instance.endTurn();
+        }
+        else
+            TurnManager.instance.endTurn();
     }
 
 
@@ -147,8 +172,8 @@ public class PhaseManager : MonoBehaviour
                 case 1:
                     var potentialCrossings = BoardManager.instance
                         .crossings.Values
-                        .Where(e => ((e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.Settlement 
-                        || (e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.City) 
+                        .Where(e => ((e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.Settlement
+                        || (e.currentPiece?.pieceType ?? PieceType.Unset) == PieceType.City)
                         && (e.currentPiece?.pieceOwnerID ?? -1) == clientID)
                         .ToList();
                     cc = potentialCrossings.ElementAt(Random.Range(0, potentialCrossings.Count));
@@ -167,7 +192,7 @@ public class PhaseManager : MonoBehaviour
                     BuildingManager.instance.SetPieceOnServer(cc.pos, clientID, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(cityBR));
                     break;
             }
-            
+
             if (did)
                 break;
 
@@ -253,6 +278,25 @@ public class PhaseManager : MonoBehaviour
         if (endedPhase != Phase.GettingSpecialCards)
             return;
 
+        int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
+        growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
+
+        if (CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + 1 >= diceNum)
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
+                PlayerInventoriesManager.instance.giveRandomSpecial(clientID, type);
+
+        TurnManager.instance.ForceEndTurn();
+    }
+    public void OnRemovingSpecialCardsTimeLimitReached(int clientID, Phase endedPhase)
+    {
+        if (endedPhase != Phase.RemovingSpecialCards)
+            return;
+        int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
+        growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
+
+        if (CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + 1 >= diceNum)
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
+                PlayerInventoriesManager.instance.removeRandomSpecial(clientID, type);
 
 
         TurnManager.instance.ForceEndTurn();
