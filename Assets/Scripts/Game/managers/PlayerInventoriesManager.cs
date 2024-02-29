@@ -55,9 +55,9 @@ public class PlayerInventoriesManager : NetworkBehaviour
 
 
     [Server]
-    public void ChangeCardQuantity(int clientID, int cardType, int delta)
+    public void ChangeCardQuantity(int clientID, int cardID, int delta)
     {
-        ChangeCardQuantityRPC(clientID, cardType, delta);
+        ChangeCardQuantityRPC(clientID, cardID, delta);
     }
 
     [ObserversRpc]
@@ -111,7 +111,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
     {
         RollSpecialCardToPlayer(type);
     }
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void RollSpecialCardToPlayer(growthType type, NetworkConnection nc = null)
     {
         List<SpecialCard> cardsLeft = numberOfSpecialCardsLeft
@@ -122,29 +122,38 @@ public class PlayerInventoriesManager : NetworkBehaviour
         {
             card = cardsLeft[Random.Range(0, cardsLeft.Count)];
             numberOfSpecialCardsLeft[card]--;
-            ChangeCardQuantity(nc.ClientId, card.ID, -1);
+            ChangeCardQuantity(nc.ClientId, card.ID, 1);
         }
         TurnManager.instance.ForceEndTurn();
     }
 
-    public int playerNumberOfSpecialCards(int clientID, growthType type)
+    public int playerNumberOfSpecialCards(int clientID)
     {
         int[] inventory = playerInventories[clientID];
         int number = 0;
         for (int i = 0; i < inventory.Length; i++)
-            if(ObjectDefiner.instance.equipableCards[i].CardType == cardType.Special)
+            if (ObjectDefiner.instance.equipableCards[i].CardViewType == cardViewType.Special)
                 number += inventory[i];
         return number;
+    }
+    public List<CardSO> playerSpecialCards(int clientID)
+    {
+        int[] inventory = playerInventories[clientID];
+        List<CardSO> cards = new();
+        for (int i = 0; i < inventory.Length; i++)
+            if (ObjectDefiner.instance.equipableCards[i].CardViewType == cardViewType.Special)
+                for (int j = 0; j < inventory[i]; j++)
+                    cards.Add(ObjectDefiner.instance.equipableCards[i]);
+        return cards;
     }
     public void SpecialCardUsed(SpecialCard card)
     {
         numberOfSpecialCardsLeft[card]++;
     }
-    public void BeginSpecialCardRemove(growthType type)
+    [ServerRpc(RequireOwnership = false)]
+    public void destroyMySpecialCard(int ID,NetworkConnection nc = null)
     {
-        Debug.Log("a se usuwam kartê hehe");
-
-        instance.RollMeSpecialCard(type);
+        ChangeCardQuantity(nc.ClientId, ID, -1);
     }
     public void removeRandomSpecial(int clientID, growthType type)
     {

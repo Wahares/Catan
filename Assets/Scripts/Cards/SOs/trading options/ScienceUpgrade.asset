@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97411e1c86834994b85b04870b3b9ecf, type: 3}
+  m_Name: ScienceUpgrade
+  m_EditorClassIdentifier: 
+  materials:
+  - card: {fileID: 11400000, guid: d9f2d9a814553484394041d9df667429, type: 2}
+    number: 1
+  icon: {fileID: 0}
+  type: 3

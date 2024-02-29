@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 
-public class CommodityUpgradeRecipe : RecipedCard
+public class CommodityUpgradeRecipe : TradingOption
 {
     public growthType type;
     public override bool CanUse(List<CardSO> cards, int clientID)
@@ -22,6 +19,6 @@ public class CommodityUpgradeRecipe : RecipedCard
     }
     public override void OnUsed()
     {
-        CommodityUpgradeManager.instance.Upgrade(type);
+        CommodityUpgradeManager.instance.Upgrade(type, materials[0].card.ID);
     }
 }

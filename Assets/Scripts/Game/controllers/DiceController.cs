@@ -22,6 +22,7 @@ public class DiceController : NetworkBehaviour
     public event System.Action<int, int, diceActions> OnDiceRolled;
 
 
+
     private void Awake()
     {
         instance = this;
@@ -76,6 +77,7 @@ public class DiceController : NetworkBehaviour
             {
                 int codedSpecialCardsArgs = red;
                 codedSpecialCardsArgs |= (int)action << 3;
+                TurnManager.instance.EnqueuePhase(Phase.RemovingSpecialCards, i, TurnManager.TIME_LIMIT / 4, codedSpecialCardsArgs, true);
                 TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, TurnManager.TIME_LIMIT / 4, codedSpecialCardsArgs, true);
             }
 
@@ -225,6 +227,19 @@ public class DiceController : NetworkBehaviour
         currentRoll = null;
     }
 
+    [Space]
+    public int RollThisNormal, RollThisRed;
+    public diceActions RollThisAction;
+    [ContextMenu("Roll This")]
+    private void RollThis()
+    {
+        ushort coded = (ushort)(RollThisAction + 3);
+        coded |= (ushort)(RollThisRed << 4);
+        coded |= (ushort)(RollThisNormal << 8);
+
+        recieveRoll(coded);
+        rollButton.gameObject.SetActive(false);
+    }
 
 
 

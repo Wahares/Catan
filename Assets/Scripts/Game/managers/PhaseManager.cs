@@ -120,8 +120,7 @@ public class PhaseManager : MonoBehaviour
         growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
         if (CommodityUpgradeManager.instance.getUpgradeLevel(InstanceFinder.ClientManager.Connection.ClientId, type) + 1 >= diceNum)
             PlayerInventoriesManager.instance.RollMeSpecialCard(type);
-        else
-            TurnManager.instance.endTurn();
+        TurnManager.instance.endTurn();
     }
     public void OnMyRemovingSpecialCardsPhaseTurn()
     {
@@ -131,8 +130,14 @@ public class PhaseManager : MonoBehaviour
         growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
         if (CommodityUpgradeManager.instance.getUpgradeLevel(InstanceFinder.ClientManager.Connection.ClientId, type) + 1 >= diceNum)
         {
-            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
-                PlayerInventoriesManager.instance.BeginSpecialCardRemove(type);
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId) == 3)
+                CardChoiceManager.instance.CreateChoice(
+            "Choose card to give off"
+            , PlayerInventoriesManager.instance.playerSpecialCards(InstanceFinder.ClientManager.Connection.ClientId)
+            , 1
+            , (e) => { PlayerInventoriesManager.instance.destroyMySpecialCard(e[0].ID); TurnManager.instance.endTurn(); }
+            , null
+            , null);
             else
                 TurnManager.instance.endTurn();
         }
@@ -277,15 +282,16 @@ public class PhaseManager : MonoBehaviour
     {
         if (endedPhase != Phase.GettingSpecialCards)
             return;
-
+        /*
         int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
         growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
 
         if (CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + 1 >= diceNum)
-            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId) == 3)
                 PlayerInventoriesManager.instance.giveRandomSpecial(clientID, type);
 
         TurnManager.instance.ForceEndTurn();
+        */
     }
     public void OnRemovingSpecialCardsTimeLimitReached(int clientID, Phase endedPhase)
     {
@@ -295,10 +301,8 @@ public class PhaseManager : MonoBehaviour
         growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
 
         if (CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + 1 >= diceNum)
-            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId, type) == 3)
+            if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId) == 3)
                 PlayerInventoriesManager.instance.removeRandomSpecial(clientID, type);
-
-
         TurnManager.instance.ForceEndTurn();
     }
 

@@ -50,7 +50,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Value: 1
+    - _Value: 0.4
     m_Colors: []
   m_BuildTextureStacks: []
 --- !u!114 &3643635701972965461

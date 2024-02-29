@@ -38,6 +38,7 @@ public class BarbariansController : MonoBehaviour
         preview.position = Vector3.down * 10;
         if (!IsValid(pos, placeType))
             return;
+        CrossingController cc = BoardManager.instance.crossings[pos ?? Vector2Int.zero];
         preview.position = cc.transform.position;
     }
     private void finalizeDestroy(Vector2Int? pos, PiecePlaceType placeType)

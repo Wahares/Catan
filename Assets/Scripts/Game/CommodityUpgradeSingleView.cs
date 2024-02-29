@@ -8,6 +8,6 @@ public class CommodityUpgradeSingleView : MonoBehaviour
     private Image img;
     public void setValue(int value)
     {
-        img.material.SetFloat("Value", (float)value / maxLevel);
+        img.material.SetFloat("_Value", (float)value / maxLevel);
     }
 }

@@ -28,30 +28,32 @@ public class CommodityUpgradeManager : NetworkBehaviour
         foreach (var player in ClientManager.Clients.Keys)
             PlayersLevels[player] = 0;
     }
-    public void Upgrade(growthType type)
+    public void Upgrade(growthType type, int materialID)
     {
         if (type == growthType.Blank)
         {
             Debug.LogError("Wrong type of growth!");
             return;
         }
-        UpgradeOnServer(type);
+        UpgradeOnServer(type, materialID);
     }
-    [ServerRpc]
-    private void UpgradeOnServer(growthType type,NetworkConnection nc = null)
+    [ServerRpc(RequireOwnership = false)]
+    private void UpgradeOnServer(growthType type, int materialID, NetworkConnection nc = null)
     {
         setUpgradeLevel(nc.ClientId, type, getUpgradeLevel(nc.ClientId, type) + 1);
+        PlayerInventoriesManager.instance.ChangeCardQuantity(nc.ClientId, materialID, -getUpgradeLevel(nc.ClientId, type)-1);
     }
 
+
     [ObserversRpc]
-    private void setUpgradeLevel(int clientID, growthType type,int level)
+    private void setUpgradeLevel(int clientID, growthType type, int level)
     {
         if (type == growthType.Blank)
         {
             Debug.LogError("Wrong type of growth!");
             return;
         }
-        PlayersLevels[clientID] = PlayersLevels[clientID] & ((~0)^(255<<(8*(int)type-8)));
+        PlayersLevels[clientID] = PlayersLevels[clientID] & ((~0) ^ (255 << (8 * (int)type - 8)));
         PlayersLevels[clientID] = PlayersLevels[clientID] | (level << (8 * (int)type - 8));
         if (clientID == LocalConnection.ClientId)
             localCUV.setValue(type, level);
@@ -67,6 +69,6 @@ public class CommodityUpgradeManager : NetworkBehaviour
         }
         return (PlayersLevels[clientID] >> (8 * (int)type - 8)) & 255;
     }
-    
+
 
 }
