@@ -1,6 +1,7 @@
 using FishNet.Object;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections.Generic;
 
 public class PlayerInventoryExchangeController : NetworkBehaviour
 {
@@ -23,8 +24,22 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
         CursorController.OnRightClicked -= DisableMenu;
     }
     private TradingOption currentOption;
+
+
+    [SerializeField]
+    private List<CardSO> tradingCards;
+
     public void BeginTransaction(TradingOption option)
     {
+        currentOption = option;
+        CardChoiceManager.instance.CreateChoice("Exchange for:"
+            , tradingCards
+            , 1
+            , (list) => { finalize(list[0].ID, ObjectDefiner.instance.availableTradings.IndexOf(currentOption), LocalConnection.ClientId); }
+            , null
+            , null);
+
+        /*
         currentOption = option;
 
         foreach (var button in buttons)
@@ -34,6 +49,7 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
             button.transform.GetChild(0).transform.DOLocalMove(Vector3.zero, 0.25f);
             button.SetActive(true);
         }
+        */
     }
     public void Clicked(CardSO card)
     {
@@ -60,8 +76,4 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
         }
         catch { Debug.LogError("Error while executing trading option"); }
     }
-
-
-
-
 }
