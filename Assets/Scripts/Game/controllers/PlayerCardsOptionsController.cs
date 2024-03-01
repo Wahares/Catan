@@ -87,7 +87,7 @@ public class PlayerCardsOptionsController : MonoBehaviour
                 possibleExchanges.Add(option);
         }
         foreach (var giver in registeredGivers)
-            giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId);
+            giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId,selectedCards);
         
     }
 }

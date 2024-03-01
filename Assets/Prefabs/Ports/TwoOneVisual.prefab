@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3000642412093583174}
   - component: {fileID: 7849320086956297038}
+  - component: {fileID: 8214499738863482692}
   m_Layer: 0
   m_Name: TwoOneVisual
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   m_Children:
   - {fileID: 3409346422805014735}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7849320086956297038
 MonoBehaviour:
@@ -47,6 +48,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Text: {fileID: 2569122450383951791}
   icon: {fileID: 1140209203518905392}
+--- !u!65 &8214499738863482692
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494943495748515470}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 0.25}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5772069165347479433
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,8 +95,8 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5772069165347479433}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3.5226002}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.00000016391276}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -82,10 +104,10 @@ RectTransform:
   - {fileID: 2161451637814919641}
   m_Father: {fileID: 3000642412093583174}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 9.3056, y: 0.17700002}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &6462185253425311324

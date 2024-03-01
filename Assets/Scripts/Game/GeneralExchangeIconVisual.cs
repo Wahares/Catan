@@ -23,13 +23,13 @@ public class GeneralExchangeIconVisual : MonoBehaviour
     {
         textColor.a = 1;
         Text.DOKill();
-        Text.DOBlendableColor(textColor, 1);
+        Text.DOBlendableColor(textColor, 0.2f);
     }
     protected virtual void OnMouseExit()
     {
-        textColor.a = 0.5f;
+        textColor.a = 0.25f;
         Text.DOKill();
-        Text.DOBlendableColor(textColor, 1);
+        Text.DOBlendableColor(textColor, 0.2f);
     }
 
 

@@ -14,13 +14,19 @@ public class ObjectDefiner : MonoBehaviour
     public List<BuildingRecipe> availableBuildingRecipes => container.buildingRecipes;
     public List<TradingOption> availableTradings => container.tradingRecipes;
 
+    public Dictionary<TileType, PortTradingOption[]> PortTradingOptions;
 
     private void Awake()
     {
         instance = this;
+        PortTradingOptions = new();
+        foreach (var set in portTradings)
+            PortTradingOptions.Add(set.type, set.tradings);
     }
+    [SerializeField]
+    private pair[] portTradings;
 
-
-
+    [System.Serializable]
+    class pair { public TileType type; public PortTradingOption[] tradings; }
 
 }

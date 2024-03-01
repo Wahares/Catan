@@ -15,7 +15,7 @@ public class BoardManager : NetworkBehaviour
     public static bool RandomizeTradingPorts = false;
 
     [SerializeField]
-    private GameObject tilePrefab, borderPrefab, borderFillerPrefab, crossingPrefab, roadPrefab;
+    private GameObject tilePrefab, borderPrefab, borderFillerPrefab, crossingPrefab, roadPrefab, portPrefab;
     [SerializeField]
     private Transform boardRoot;
 
@@ -108,41 +108,46 @@ public class BoardManager : NetworkBehaviour
 
         //generate port data ------------------------------------
 
-        List<TileType> materialsForPorts = new List<TileType> { TileType.ClayPit, TileType.Forest, TileType.Desert, TileType.Farmland, TileType.Mine, TileType.Desert, TileType.Pasture, TileType.Desert, TileType.Desert };
+        List<TileType> materialsForPorts = new List<TileType> { TileType.ClayPit, TileType.Forest, TileType.Farmland, TileType.Mine, TileType.Pasture, TileType.Desert };
 
-        int optimalSpacing = (int)(30f / CrossingsInRing(mapSize));
-        int spacingsLeft = CrossingsInRing(mapSize) - materialsForPorts.Count * (2 + optimalSpacing);
-        int currentIndex = 0;
-        while (currentIndex != CrossingsInRing(mapSize))
+        if (randomizePorts)
         {
-            tradingPorts[currentIndex] = (int)materialsForPorts[0];
-            currentIndex++;
-            tradingPorts[currentIndex] = (int)materialsForPorts[0];
-            currentIndex++;
-            materialsForPorts.RemoveAt(0);
-            for (int i = 0; i < optimalSpacing; i++)
+            for (int i = 0; i < materialsForPorts.Count*2; i++)
             {
-                tradingPorts[currentIndex] = -1;
-                currentIndex++;
-            }
-            Debug.Log("terefere");
-            if (spacingsLeft > 0) //tutaj pewnie coœ nie gra
-            {
-                tradingPorts[currentIndex] = -1;
-                currentIndex++;
-            }
-
-            tradingPorts[currentIndex] = (int)materialsForPorts[0];
-            currentIndex++;
-            tradingPorts[currentIndex] = (int)materialsForPorts[0];
-            currentIndex++;
-            materialsForPorts.RemoveAt(0);
-            for (int i = 0; i < optimalSpacing; i++)
-            {
-                tradingPorts[currentIndex] = -1;
-                currentIndex++;
+                int rand1 = UnityEngine.Random.Range(0, materialsForPorts.Count);
+                int rand2 = UnityEngine.Random.Range(0, materialsForPorts.Count);
+                TileType t1 = materialsForPorts[rand1];
+                materialsForPorts[rand1] = materialsForPorts[rand2];
+                materialsForPorts[rand2] = t1;
             }
         }
+        materialsForPorts.Insert(2, TileType.Desert);
+        materialsForPorts.Insert(5, TileType.Desert);
+        materialsForPorts.Add(TileType.Desert);
+
+
+        int numOfCrossings = CrossingsInRing(mapSize - 1);
+
+        int optimalSpacing = numOfCrossings / materialsForPorts.Count - 2;
+        int spacingsLeft = numOfCrossings - materialsForPorts.Count * (2 + optimalSpacing);
+        int currentIndex = 0;
+        while (currentIndex != numOfCrossings)
+        {
+            tradingPorts[currentIndex++] = (int)materialsForPorts[0];
+            tradingPorts[currentIndex++] = (int)materialsForPorts[0];
+            materialsForPorts.RemoveAt(0);
+            if (currentIndex == numOfCrossings)
+                break;
+            for (int i = 0; i < optimalSpacing; i++)
+                tradingPorts[currentIndex++] = -1;
+            if (currentIndex == numOfCrossings)
+                break;
+            if (materialsForPorts.Count % 3 == 2)
+                for (int i = 0; i < ((spacingsLeft + materialsForPorts.Count / 3) / 3); i++)
+                    tradingPorts[currentIndex++] = -1;
+        }
+
+
 
 
         return true;
@@ -251,7 +256,14 @@ public class BoardManager : NetworkBehaviour
         }
 
         //ports  ------------------------------------------------------------------
-
+        for (int i = 0; i < tradingPorts.Length; i++)
+        {
+            if (tradingPorts[i] == -1)
+                continue;
+            GameObject obj = Instantiate(portPrefab, boardRoot);
+            obj.transform.position = GetCrossingPosition(new Vector2Int(mapSize - 1, i));
+            obj.GetComponent<PortTradingGiver>().Setup(new Vector2Int(mapSize - 1, i), (TileType)tradingPorts[i]);
+        }
 
 
         Invoke(nameof(BeginGame), nextTileDelay + TILE_FLY_SPEED);

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69517437c5bafd74188065705b04146c, type: 3}
-  m_Name: AllCards
+  m_Name: Default
   m_EditorClassIdentifier: 
   <equipableCards>k__BackingField:
   - {fileID: 11400000, guid: 0bc51dc6c431edb4db15ae518a2cbe16, type: 2}

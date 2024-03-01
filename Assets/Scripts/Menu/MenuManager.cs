@@ -35,13 +35,17 @@ public class MenuManager : MonoBehaviour
 
     [SerializeField]
     private ValuePicker mapSizePicker, timeLimitPicker, maxPlayersPicker;
+    [SerializeField]
+    private UnityEngine.UI.Toggle randomizePorts;
 
     public void hostGame(bool asSteam)
     {
         BoardManager.MapSize = mapSizePicker.value;
+        BoardManager.RandomizeTradingPorts = randomizePorts.isOn;
         TurnManager.TIME_LIMIT = timeLimitPicker.value;
         TurnManager.DO_LIMIT_TURN = timeLimitPicker.value != 0;
         PlayerManager.CurrentlyMaxPlayers = maxPlayersPicker.value;
+
         Debug.Log($"Beginning to host {(asSteam?"Steam":"Local")} game...");
         if (asSteam)
             InstanceFinder.TransportManager.GetTransport<Multipass>().SetClientTransport<FishySteamworks.FishySteamworks>();

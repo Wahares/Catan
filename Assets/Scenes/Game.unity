@@ -1802,6 +1802,9 @@ MonoBehaviour:
   rollPos: {x: 3.8, y: 0.1, z: -4.75}
   rollButton: {fileID: 352076271}
   DiceLock: 0
+  RollThisNormal: 0
+  RollThisRed: 0
+  RollThisAction: 0
 --- !u!1 &565072047
 GameObject:
   m_ObjectHideFlags: 0
@@ -6539,6 +6542,7 @@ GameObject:
   - component: {fileID: 1950016323}
   - component: {fileID: 1950016324}
   - component: {fileID: 1950016325}
+  - component: {fileID: 1950016326}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -6589,6 +6593,8 @@ MonoBehaviour:
   crossingPrefab: {fileID: 1067624698297985715, guid: b6e2026faa777c6479e3ae9ed4415f0b,
     type: 3}
   roadPrefab: {fileID: 162182086876510607, guid: a08f08bbe74a65846b936a509000d4a1,
+    type: 3}
+  portPrefab: {fileID: 2154679885626201697, guid: f8e491f1a6f308d48a830353473911c4,
     type: 3}
   boardRoot: {fileID: 816797458}
   currentBanditPos: {x: 0, y: 0}
@@ -6747,6 +6753,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 11400000, guid: 01e74fe09611e6246892de2db83bdc15, type: 2}
+  portTradings:
+  - type: 0
+    tradings:
+    - {fileID: 11400000, guid: bd479be0fdd4b4148a5c4c70cde86035, type: 2}
+    - {fileID: 11400000, guid: 1b9e3c98d7ed29743be837461b9c6b46, type: 2}
+    - {fileID: 11400000, guid: a3882f8b998fa6148a59c51a531c0290, type: 2}
+    - {fileID: 11400000, guid: 4c1a78d3e45e4364789e43e9ed550784, type: 2}
+    - {fileID: 11400000, guid: d161ebeb3809d314080f45804809e9d1, type: 2}
+    - {fileID: 11400000, guid: 7200212c25bf8a0428d3adf30664e332, type: 2}
+    - {fileID: 11400000, guid: 82fc7da649470bc46a8e3ede98986c95, type: 2}
+    - {fileID: 11400000, guid: cd00aead8dee2db468ecf8e8a51816c8, type: 2}
+  - type: 1
+    tradings:
+    - {fileID: 11400000, guid: 286a6140d30abd14aa6ef0264b468b06, type: 2}
+  - type: 2
+    tradings:
+    - {fileID: 11400000, guid: dbec3c2138ad63946883fec0e9282226, type: 2}
+  - type: 3
+    tradings:
+    - {fileID: 11400000, guid: e289465368c119543ad0d051006b4ea4, type: 2}
+  - type: 4
+    tradings:
+    - {fileID: 11400000, guid: 93832bb5ddeb2514bb72f149172b2630, type: 2}
+  - type: 5
+    tradings:
+    - {fileID: 11400000, guid: b826dc9db9c5d5f4aabb073cad2bade6, type: 2}
 --- !u!114 &1950016319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6861,6 +6893,22 @@ MonoBehaviour:
   acceptButton: {fileID: 1934576400}
   cancelButton: {fileID: 1764020629}
   canvas: {fileID: 1367659600}
+--- !u!114 &1950016326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950016308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e5acc1607052ef4a9eff77055f558f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tradingOptions:
+  - {fileID: 11400000, guid: 26d014262b9f2b14a8b99d5853345532, type: 2}
+  - {fileID: 11400000, guid: 9a50e6c6cd9b6364684d88f4d1ce0703, type: 2}
+  - {fileID: 11400000, guid: 4813c4beac5ca574cacf0f411c5edd5e, type: 2}
 --- !u!1 &1957388483
 GameObject:
   m_ObjectHideFlags: 0
