@@ -29,7 +29,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
             {
                 if (card.CardType != cardType.Special)
                     continue;
-                if (card as SpecialCard == null)
+                if (card is SpecialCard)
                     continue;
                 numberOfSpecialCardsLeft.Add(card as SpecialCard, (card as SpecialCard).numberInDeck);
             }

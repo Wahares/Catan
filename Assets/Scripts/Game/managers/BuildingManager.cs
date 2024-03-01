@@ -123,6 +123,9 @@ public class BuildingManager : NetworkBehaviour
         BuildPieceOnClients(pos, brID, clientID);
     }
 
+
+
+
     public BuildingRecipe brr;
     public Vector2Int here;
     [ContextMenu("build")]

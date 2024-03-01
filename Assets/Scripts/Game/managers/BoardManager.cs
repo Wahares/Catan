@@ -56,11 +56,11 @@ public class BoardManager : NetworkBehaviour
     }
     public void createBoard()
     {
-        int[] diceNums, tileTypes,tradingPorts;
-        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes,out tradingPorts))
+        int[] diceNums, tileTypes, tradingPorts;
+        if (TryGenerateDataProcedurally(MapSize, out diceNums, out tileTypes, out tradingPorts, RandomizeTradingPorts))
             CreateBoardFromData(MapSize, diceNums, tileTypes, tradingPorts);
     }
-    public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes, out int[] tradingPorts)
+    public bool TryGenerateDataProcedurally(int mapSize, out int[] diceNums, out int[] tileTypes, out int[] tradingPorts, bool randomizePorts)
     {
         int numberOfTiles = TilesOnBoard(mapSize) - 1;
         tileTypes = new int[numberOfTiles];
@@ -108,7 +108,41 @@ public class BoardManager : NetworkBehaviour
 
         //generate port data ------------------------------------
 
+        List<TileType> materialsForPorts = new List<TileType> { TileType.ClayPit, TileType.Forest, TileType.Desert, TileType.Farmland, TileType.Mine, TileType.Desert, TileType.Pasture, TileType.Desert, TileType.Desert };
 
+        int optimalSpacing = (int)(30f / CrossingsInRing(mapSize));
+        int spacingsLeft = CrossingsInRing(mapSize) - materialsForPorts.Count * (2 + optimalSpacing);
+        int currentIndex = 0;
+        while (currentIndex != CrossingsInRing(mapSize))
+        {
+            tradingPorts[currentIndex] = (int)materialsForPorts[0];
+            currentIndex++;
+            tradingPorts[currentIndex] = (int)materialsForPorts[0];
+            currentIndex++;
+            materialsForPorts.RemoveAt(0);
+            for (int i = 0; i < optimalSpacing; i++)
+            {
+                tradingPorts[currentIndex] = -1;
+                currentIndex++;
+            }
+            Debug.Log("terefere");
+            if (spacingsLeft > 0) //tutaj pewnie coœ nie gra
+            {
+                tradingPorts[currentIndex] = -1;
+                currentIndex++;
+            }
+
+            tradingPorts[currentIndex] = (int)materialsForPorts[0];
+            currentIndex++;
+            tradingPorts[currentIndex] = (int)materialsForPorts[0];
+            currentIndex++;
+            materialsForPorts.RemoveAt(0);
+            for (int i = 0; i < optimalSpacing; i++)
+            {
+                tradingPorts[currentIndex] = -1;
+                currentIndex++;
+            }
+        }
 
 
         return true;
@@ -264,6 +298,21 @@ public class BoardManager : NetworkBehaviour
     public void moveBarbariansOnServer() { currentBarbariansPos = (currentBarbariansPos + 1) % numberOfBarbariansFields; moveBarbarians(currentBarbariansPos); }
     [ObserversRpc]
     public void moveBarbarians(int cPos) { currentBarbariansPos = cPos; barbarians.setValue((float)currentBarbariansPos / numberOfBarbariansFields); }
+    [Server]
+    public void SetCityMetropoly(Vector2Int pos, bool isMetropoly)
+    {
+        SetCityMetropoly(pos, isMetropoly);
+    }
+    [ObserversRpc]
+    private void SetCityMetropolyRPC(Vector2Int pos, bool ismetropoly)
+    {
+        if (ismetropoly)
+            (crossings[pos].currentPiece as CityController).makeItMetropoly();
+        else
+            (crossings[pos].currentPiece as CityController).destroyMetropoly();
+    }
+
+
 
     private void BeginGame()
     {

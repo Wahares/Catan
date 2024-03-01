@@ -9,16 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a248b67359eea5049ae8c326730cc121, type: 3}
-  m_Name: CityRecipe
+  m_Script: {fileID: 11500000, guid: 06af484bb23274e45a457e71f96fd397, type: 3}
+  m_Name: Wheat2x1
   m_EditorClassIdentifier: 
   materials:
-  - card: {fileID: 11400000, guid: 39f794c17552d2c4b8dc3a4b597ec734, type: 2}
-    number: 3
   - card: {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}
     number: 2
   icon: {fileID: 0}
-  piece: {fileID: 4199255080632367104, guid: 913fb734848370b4e86f5d17a39ac98e, type: 3}
-  piecePreview: {fileID: 5703919367851607028, guid: 8b24cdcacc5bdbd44aae96553b4beab1,
-    type: 3}
-  maxOnBoard: 4

@@ -10,15 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a248b67359eea5049ae8c326730cc121, type: 3}
-  m_Name: CityRecipe
+  m_Name: KnightMobilization
   m_EditorClassIdentifier: 
   materials:
-  - card: {fileID: 11400000, guid: 39f794c17552d2c4b8dc3a4b597ec734, type: 2}
-    number: 3
   - card: {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}
-    number: 2
+    number: 1
   icon: {fileID: 0}
-  piece: {fileID: 4199255080632367104, guid: 913fb734848370b4e86f5d17a39ac98e, type: 3}
-  piecePreview: {fileID: 5703919367851607028, guid: 8b24cdcacc5bdbd44aae96553b4beab1,
+  piece: {fileID: 2358506310697655434, guid: 4277524f86fe37b429a4ea5dc3b4734c, type: 3}
+  piecePreview: {fileID: 2078677843936281678, guid: 8686f1a4c30d93f449b141beed40c0ce,
     type: 3}
-  maxOnBoard: 4
+  maxOnBoard: 5

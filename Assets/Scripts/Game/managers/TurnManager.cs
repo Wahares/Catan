@@ -118,6 +118,14 @@ public class TurnManager : NetworkBehaviour
         if (InstanceFinder.NetworkManager.IsServer)
             startPlacingPhase();
     }
+    public int orderOfPlayer(int clientID)
+    {
+        for (int i = 0; i < turnOrder.Length; i++)
+            if (turnOrder[i] == clientID)
+                return i;
+        Debug.LogError("Couldn't find order of this player");
+        return -1;
+    }
 
     [Server]
     private void startPlacingPhase()
@@ -254,4 +262,4 @@ public class TurnManager : NetworkBehaviour
     }
 
 }
-public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards, RemovingSpecialCards }
+public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards, RemovingSpecialCards, ManagingMetropoly }

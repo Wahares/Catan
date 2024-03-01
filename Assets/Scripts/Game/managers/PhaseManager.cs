@@ -19,6 +19,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted += OnMyBanditsMovePhaseTurn;
         TurnManager.OnMyTurnStarted += OnMySpecialCardsPhaseTurn;
         TurnManager.OnMyTurnStarted += OnMyRemovingSpecialCardsPhaseTurn;
+        TurnManager.OnMyTurnStarted += OnMyManagingMetropolyPhaseTurn;
 
 
         TurnManager.OnClientTimeReached += OnBuildingTimeLimitReached;
@@ -29,6 +30,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnClientTimeReached += OnBanditsMoveTimeLimitReached;
         TurnManager.OnClientTimeReached += OnSpecialCardsTimeLimitReached;
         TurnManager.OnClientTimeReached += OnRemovingSpecialCardsTimeLimitReached;
+        TurnManager.OnClientTimeReached += OnManagingMetropolyTimeLimitReached;
     }
     private void OnDestroy()
     {
@@ -40,6 +42,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnMyTurnStarted -= OnMyBanditsMovePhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMySpecialCardsPhaseTurn;
         TurnManager.OnMyTurnStarted -= OnMyRemovingSpecialCardsPhaseTurn;
+        TurnManager.OnMyTurnStarted -= OnMyManagingMetropolyPhaseTurn;
 
 
         TurnManager.OnClientTimeReached -= OnBuildingTimeLimitReached;
@@ -50,6 +53,7 @@ public class PhaseManager : MonoBehaviour
         TurnManager.OnClientTimeReached -= OnBanditsMoveTimeLimitReached;
         TurnManager.OnClientTimeReached -= OnSpecialCardsTimeLimitReached;
         TurnManager.OnClientTimeReached -= OnRemovingSpecialCardsTimeLimitReached;
+        TurnManager.OnClientTimeReached -= OnManagingMetropolyTimeLimitReached;
     }
 
 
@@ -143,6 +147,12 @@ public class PhaseManager : MonoBehaviour
         }
         else
             TurnManager.instance.endTurn();
+    }
+
+    public void OnMyManagingMetropolyPhaseTurn()
+    {
+        if (TurnManager.currentPhase != Phase.ManagingMetropoly)
+            return;
     }
 
 
@@ -303,6 +313,41 @@ public class PhaseManager : MonoBehaviour
         if (CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + 1 >= diceNum)
             if (PlayerInventoriesManager.instance.playerNumberOfSpecialCards(InstanceFinder.ClientManager.Connection.ClientId) == 3)
                 PlayerInventoriesManager.instance.removeRandomSpecial(clientID, type);
+        TurnManager.instance.ForceEndTurn();
+    }
+
+
+    public void OnManagingMetropolyTimeLimitReached(int clientID, Phase endedPhase)
+    {
+        if (endedPhase != Phase.ManagingMetropoly)
+            return;
+        List<CityController> cities = new();
+
+        foreach (var cc in BoardManager.instance.crossings.Values)
+        {
+            if (cc.currentPiece == null)
+                continue;
+            if (cc.currentPiece.pieceOwnerID != clientID)
+                continue;
+            if (cc.currentPiece.pieceType != PieceType.City)
+                continue;
+            cities.Add(cc.currentPiece.GetComponent<CityController>());
+        }
+
+        if (TurnManager.currentPhaseArgs == 0)
+            Debug.LogError("Wrong type of parameter!!!");
+
+        bool building = TurnManager.currentPhaseArgs < 0;
+
+        cities = cities.Where(e => e.isMetropoly != building).ToList();
+        if (cities.Count != 0)
+        {
+            Vector2Int pos = cities[Random.Range(0, cities.Count)].codedPos;
+            BoardManager.instance.SetCityMetropoly(pos, building);
+        }
+        else
+            Debug.LogError("Didn't found any cities (???)");
+
         TurnManager.instance.ForceEndTurn();
     }
 

@@ -1,9 +1,13 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class CityController : SettlementController
 {
     public override PieceType pieceType => PieceType.City;
     public bool isMetropoly, hasWalls;
+    [SerializeField]
+    private GameObject wallsObj, metropolyObj;
+    private GameObject currentWalls,currentMetropoly;
     public override void OnTileInvoked(TileController tc)
     {
         base.OnTileInvoked(tc);
@@ -39,6 +43,38 @@ public class CityController : SettlementController
     public override int getVictoryWeight()
     {
         return isMetropoly ? 4 : 2;
+    }
+    public void makeItMetropoly()
+    {
+        isMetropoly = true;
+        currentMetropoly = Instantiate(metropolyObj, transform);
+        currentMetropoly.transform.DOKill();
+        currentMetropoly.transform.localPosition = Vector3.up;
+        currentMetropoly.transform.DOLocalMoveY(0, 0.5f);
+    }
+    public void destroyMetropoly()
+    {
+        isMetropoly = false;
+        GameObject tmp = currentMetropoly;
+        currentMetropoly = null;
+        tmp.transform.DOKill();
+        tmp.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() => { Destroy(tmp); });
+    }
+    public void makeWalls()
+    {
+        hasWalls = true;
+        currentWalls = Instantiate(wallsObj, transform);
+        currentWalls.transform.DOKill();
+        currentWalls.transform.localPosition = Vector3.up;
+        currentWalls.transform.DOLocalMoveY(0, 0.5f);
+    }
+    public void destroyWalls()
+    {
+        hasWalls = false;
+        GameObject tmp = currentWalls;
+        currentWalls = null;
+        tmp.transform.DOKill();
+        tmp.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() => { Destroy(tmp); });
     }
 
 }

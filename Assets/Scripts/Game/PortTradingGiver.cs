@@ -5,13 +5,13 @@ public class PortTradingGiver : ExchangeGiver
     private Vector2Int mapPos;
     [SerializeField]
     private GameObject TwoOnePrefab, ThreeOnePrefab,visualPivot;
-    public void Setup(Vector2Int mapPos)
+    public void Setup(Vector2Int mapPos,TileType materialType)
     {
         this.mapPos = mapPos;
         if (tradingOptions.Length == 0)
             Debug.LogError("TradingOptions not specified!");
-
-        Instantiate((tradingOptions.Length > 1) ? ThreeOnePrefab : TwoOnePrefab, visualPivot.transform).GetComponent<GeneralExchangeIconVisual>().setup(this);
+        //desert means unset specification
+        Instantiate(materialType == TileType.Desert ? ThreeOnePrefab : TwoOnePrefab, visualPivot.transform).GetComponent<GeneralExchangeIconVisual>().setup(this);
 
     }
     protected override bool CanGive(int clientID)
