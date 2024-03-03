@@ -8,12 +8,12 @@ public abstract class ExchangeGiver : MonoBehaviour
 
     protected virtual void Awake()
     {
-        FindObjectOfType<PlayerCardsOptionsController>().RegisterExchangeGiver(this);
+        FindAnyObjectByType<PlayerCardsOptionsController>().RegisterExchangeGiver(this);
     }
 
     protected abstract bool CanGive(int clientID);
 
-    public void TryToGiveOption(ref HashSet<RecipedCard> set, int clientID, List<CardSO> selectedCards)
+    public virtual void TryToGiveOption(ref HashSet<RecipedCard> set, int clientID, List<CardSO> selectedCards)
     {
         if (CanGive(clientID))
             foreach (var option in tradingOptions)

@@ -32,7 +32,6 @@ public class DiceController : NetworkBehaviour
 
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
-        OnDiceRolled += handleDiceBasedPhases;
         TurnManager.OnAnyTurnStarted += DropLock;
 
     }
@@ -40,50 +39,12 @@ public class DiceController : NetworkBehaviour
     {
         if (!InstanceFinder.NetworkManager.IsServer)
             return;
-        OnDiceRolled -= handleDiceBasedPhases;
         TurnManager.OnAnyTurnStarted -= DropLock;
     }
     [Server]
     private void DropLock(int clientID, Phase ph) { if (ph == Phase.BeforeRoll) DiceLock = false; }
 
-    private void handleDiceBasedPhases(int basic, int red, diceActions action)
-    {
-        if (action == diceActions.Barbarians)
-        {
-            BoardManager.instance.moveBarbariansOnServer();
-            Debug.Log($"Barbarians moving! {BoardManager.instance.currentBarbariansPos}x{BoardManager.instance.numberOfBarbariansFields}");
-            if (BoardManager.instance.currentBarbariansPos % BoardManager.instance.numberOfBarbariansFields == 0)
-            {
-                var playersToPunish = BoardManager.instance.currentPlayersInDanger();
-                for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-                    if (playersToPunish.Contains(TurnManager.turnOrder[i]))
-                        TurnManager.instance.EnqueuePhase(Phase.Barbarians, i, TurnManager.TIME_LIMIT / 4, true);
-                if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
-                    BoardManager.instance.moveBanditsOnServer(new Vector2Int(0, 0), -1);
-            }
-        }
-        if (basic + red == 7)
-        {
-            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-                TurnManager.instance.EnqueuePhase(Phase.BanditsMoreThan7, i, TurnManager.TIME_LIMIT / 4, true);
-
-            if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
-                Debug.Log("Bandits are not yet on the board - skipping BanditsMove phase...");
-            else
-                TurnManager.instance.EnqueuePhase(Phase.BanditsMove, TurnManager.currentTurnID, TurnManager.TIME_LIMIT / 4, true);
-        }
-        if (action != diceActions.Barbarians)
-            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
-            {
-                int codedSpecialCardsArgs = red;
-                codedSpecialCardsArgs |= (int)action << 3;
-                TurnManager.instance.EnqueuePhase(Phase.RemovingSpecialCards, i, TurnManager.TIME_LIMIT / 4, codedSpecialCardsArgs, true);
-                TurnManager.instance.EnqueuePhase(Phase.GettingSpecialCards, i, TurnManager.TIME_LIMIT / 4, codedSpecialCardsArgs, true);
-            }
-
-        TurnManager.instance.EnqueuePhase(Phase.CasualRound, TurnManager.currentTurnID, TurnManager.TIME_LIMIT, true);
-        TurnManager.instance.ForceEndTurn();
-    }
+    
 
     public bool DiceLock = false;
 

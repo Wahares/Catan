@@ -37,7 +37,8 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
             , 1
             , (list) => { finalize(list[0].ID, ObjectDefiner.instance.availableTradings.IndexOf(currentOption), LocalConnection.ClientId); }
             , null
-            , null);
+            , null,
+            true);
 
         /*
         currentOption = option;

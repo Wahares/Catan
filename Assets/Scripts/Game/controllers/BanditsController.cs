@@ -1,5 +1,6 @@
 using UnityEngine;
 using FishNet.Object;
+using FishNet.Connection;
 
 public class BanditsController : NetworkBehaviour
 {
@@ -52,7 +53,7 @@ public class BanditsController : NetworkBehaviour
         if (!TurnManager.isMyTurn)
             return;
 
-        BoardManager.instance.moveBanditsOnServer(pos??Vector2Int.zero,LocalConnection.ClientId);
+        BoardManager.instance.moveBanditsOnServer(pos ?? Vector2Int.zero, LocalConnection.ClientId);
         cancelAction();
         TurnManager.instance.endTurn();
     }
@@ -61,9 +62,18 @@ public class BanditsController : NetworkBehaviour
         if (!isListening)
             return;
         isListening = false;
+        cc.currentFocusPieceType = PiecePlaceType.None;
         CursorController.Hovering -= hover;
         CursorController.OnClicked -= finalizeMove;
         preview.position = Vector3.down * 10;
     }
+    public void BishopUsed(int cardID) => BishopUsedRPC(cardID);
+
+    [ServerRpc(RequireOwnership = false)]
+    private void BishopUsedRPC(int cardID,NetworkConnection nc = null)
+    {
+        PlayerInventoriesManager.instance.ChangeCardQuantity(nc.ClientId, cardID, -1);
+    }
+
 
 }

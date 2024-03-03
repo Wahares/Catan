@@ -1,3 +1,4 @@
+using DG.Tweening;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Object;
@@ -29,7 +30,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
             {
                 if (card.CardType != cardType.Special)
                     continue;
-                if (card is SpecialCard)
+                if (card is not SpecialCard)
                     continue;
                 numberOfSpecialCardsLeft.Add(card as SpecialCard, (card as SpecialCard).numberInDeck);
             }
@@ -51,7 +52,11 @@ public class PlayerInventoriesManager : NetworkBehaviour
         }
         return cardsInHand;
     }
-
+    [ServerRpc(RequireOwnership = false)]
+    public void ChangeMyCardsQuantity(int cardID, int delta, NetworkConnection nc = null)
+    {
+        ChangeCardQuantity(nc.ClientId, cardID, delta);
+    }
 
 
     [Server]
@@ -151,7 +156,7 @@ public class PlayerInventoriesManager : NetworkBehaviour
         numberOfSpecialCardsLeft[card]++;
     }
     [ServerRpc(RequireOwnership = false)]
-    public void destroyMySpecialCard(int ID,NetworkConnection nc = null)
+    public void destroyMySpecialCard(int ID, NetworkConnection nc = null)
     {
         ChangeCardQuantity(nc.ClientId, ID, -1);
     }
@@ -188,6 +193,29 @@ public class PlayerInventoriesManager : NetworkBehaviour
             obj.GetComponent<FlyingCardView>().hideTexture(gt);
         }
         return obj;
+    }
+
+    [SerializeField]
+    private Transform specialCardEffectPivot;
+    [ServerRpc(RequireOwnership = false)]
+    public void SpecialCardUseEffect(int cardID)
+    {
+        if (cardID == -1)
+            Debug.LogError("Tried to do effect with null card");
+        else
+            SpecialCardUseEffectRPC(cardID);
+    }
+    [ObserversRpc]
+    public void SpecialCardUseEffectRPC(int cardID)
+    {
+        GameObject obj = createFlyingCard(false, cardID);
+        obj.transform.SetParent(specialCardEffectPivot, false);
+        obj.transform.forward = specialCardEffectPivot.forward;
+
+        specialCardEffectPivot.DOComplete();
+        specialCardEffectPivot.transform.localPosition = new Vector3(4, 0, 1);
+        specialCardEffectPivot.transform.DOLocalMove(Vector3.zero, 2).SetEase(Ease.OutSine);
+        specialCardEffectPivot.transform.DOLocalMove(new Vector3(4, 0, 1), 1).SetEase(Ease.InSine).SetDelay(4).OnComplete(() => { Destroy(obj); });
     }
 
 

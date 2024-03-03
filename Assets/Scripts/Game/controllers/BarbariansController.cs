@@ -79,6 +79,7 @@ public class BarbariansController : MonoBehaviour
         if (!isListening)
             return;
         isListening = false;
+        cc.currentFocusPieceType = PiecePlaceType.None;
         CursorController.Hovering -= hover;
         CursorController.OnClicked -= finalizeDestroy;
         preview.position = Vector3.down * 10;

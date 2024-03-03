@@ -34,7 +34,7 @@ public class CardChoiceManager : MonoBehaviour
     private List<SingleCardChoiceController> generatedCards = new();
     private List<SingleCardChoiceController> currentSelected = new();
 
-    public void CreateChoice(string title, List<CardSO> cards, int numberOfCards, Action<List<CardSO>> OnAccepted, Action OnCanceled, Action ForceChoice)
+    public void CreateChoice(string title, List<CardSO> cards, int numberOfCards, Action<List<CardSO>> OnAccepted, Action OnCanceled, Action ForceChoice, bool canCancel)
     {
         if (currentChoice != null)
             cancelCurrent();
@@ -44,9 +44,14 @@ public class CardChoiceManager : MonoBehaviour
 
         titleText.text = title;
 
+        cancelButton.gameObject.SetActive(canCancel);
+
         canvas.alpha = 1;
         canvas.interactable = true;
         canvas.blocksRaycasts = true;
+
+        if (numberOfCards == 0)
+            acceptButton.interactable = true;
 
         float offset = cards.Count / 2 * 5;
         for (int i = 0; i < cards.Count; i++)
@@ -57,16 +62,16 @@ public class CardChoiceManager : MonoBehaviour
             float angle = i * 5 - offset;
             sccc.transform.position = cardsPivot.position;
             sccc.transform.RotateAround(Camera.main.transform.position, Camera.main.transform.up, angle);
-            sccc.transform.localScale = Vector3.one*10;
+            sccc.transform.localScale = Vector3.one * 10;
             sccc.transform.localPosition = new Vector3(sccc.transform.localPosition.x, 0, sccc.transform.localPosition.y);
             //sccc.transform.forward = sccc.transform.position - Camera.main.transform.position;
         }
 
     }
-    
+
     private void acceptCurrent()
     {
-        currentChoice.OnAccepted?.Invoke(currentSelected.Select(e=>e.item).ToList());
+        currentChoice.OnAccepted?.Invoke(currentSelected.Select(e => e.item).ToList());
         resetView();
     }
     private void cancelCurrent()

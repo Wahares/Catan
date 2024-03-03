@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FishNet.Object;
 using System;
 using FishNet.Connection;
+using System.Linq;
 
 public class TurnManager : NetworkBehaviour
 {
@@ -53,11 +54,13 @@ public class TurnManager : NetworkBehaviour
             return;
         BoardManager.OnBoardInitialized += randomizePlayers;
         PlayerManager.OnPlayerDisconnected += playerWithTurnDisconnected;
+        DiceController.instance.OnDiceRolled += handleDiceBasedPhases;
     }
     private void OnDestroy()
     {
         BoardManager.OnBoardInitialized -= showTimeLimit;
         OnMyTurnEnded -= hideEndButton;
+        DiceController.instance.OnDiceRolled -= handleDiceBasedPhases;
     }
     private void showTimeLimit()
     {
@@ -261,5 +264,84 @@ public class TurnManager : NetworkBehaviour
                 calcNewTurn();
     }
 
+
+    private void handleDiceBasedPhases(int basic, int red, diceActions action)
+    {
+        if (action == diceActions.Barbarians)
+        {
+            BoardManager.instance.moveBarbariansOnServer();
+            Debug.Log($"Barbarians moving! {BoardManager.instance.currentBarbariansPos}x{BoardManager.instance.numberOfBarbariansFields}");
+            if (BoardManager.instance.currentBarbariansPos % BoardManager.instance.numberOfBarbariansFields == 0)
+            {
+                var playersToPunish = BoardManager.instance.currentPlayersInDanger();
+                for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+                    if (playersToPunish.Contains(turnOrder[i]))
+                        EnqueuePhase(Phase.Barbarians, i, TIME_LIMIT / 4, true);
+                if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
+                    BoardManager.instance.moveBanditsOnServer(new Vector2Int(0, 0), -1);
+            }
+        }
+        if (basic + red == 7)
+        {
+            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+                EnqueuePhase(Phase.BanditsMoreThan7, i, TIME_LIMIT / 4, true);
+
+            if (BoardManager.instance.currentBanditPos == new Vector2Int(-1, -1))
+                Debug.Log("Bandits are not yet on the board - skipping BanditsMove phase...");
+            else
+                EnqueuePhase(Phase.BanditsMove, currentTurnID, TIME_LIMIT / 4, true);
+        }
+        if (action != diceActions.Barbarians)
+            for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+            {
+                int codedSpecialCardsArgs = red;
+                codedSpecialCardsArgs |= (int)action << 3;
+                EnqueuePhase(Phase.RemovingSpecialCards, i, TIME_LIMIT / 4, codedSpecialCardsArgs, true);
+                EnqueuePhase(Phase.GettingSpecialCards, i, TIME_LIMIT / 4, codedSpecialCardsArgs, true);
+            }
+        for (int i = 0; i < PlayerManager.numOfPlayers; i++)
+        {
+            int playerID = turnOrder[i];
+            if (CommodityUpgradeManager.instance.getUpgradeLevel(playerID, growthType.Science) < 3)
+                continue;
+            bool hasSettlementOrCity = BoardManager.instance.Tiles
+                .Where(e => e.Value.num == basic + red)
+                .Select(e => e.Value.getNearbyCrossings())
+                .Where((e) =>
+                {
+                    bool hasPiece = false;
+                    foreach (var crossing in e)
+                    {
+                        if (crossing.currentPiece == null)
+                            continue;
+                        if ((crossing.currentPiece as SettlementController) != null)
+                            hasPiece = true;
+                    }
+                    return hasPiece;
+                }).Count() > 0;
+            if (hasSettlementOrCity)
+                EnqueuePhase(Phase.GettingAdditionalCard, i, 10, true);
+        }
+
+        instance.EnqueuePhase(Phase.CasualRound, currentTurnID, TIME_LIMIT, true);
+        instance.ForceEndTurn();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
-public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards, RemovingSpecialCards, ManagingMetropoly }
+public enum Phase { GettingReady, FreeBuild, BeforeRoll, CasualRound, BanditsMoreThan7, BanditsMove, Barbarians, GettingSpecialCards, RemovingSpecialCards, ManagingMetropoly, GettingAdditionalCard }

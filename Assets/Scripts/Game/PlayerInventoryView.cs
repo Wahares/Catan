@@ -117,16 +117,13 @@ public class PlayerInventoryView : MonoBehaviour
     private void distributeSpecials(List<CardView> cards)
     {
         for (int i = 0; i < cards.Count; i++)
-        {
-            cards[i].transform.localPosition = Vector3.right * i;
-        }
+            cards[i].transform.localPosition = Vector3.right * i * 0.7f;
     }
     private void distributePersistent(List<CardView> cards)
     {
+        float offset = cards.Count / 2 * 0.7f;
         for (int i = 0; i < cards.Count; i++)
-        {
-            cards[i].transform.localPosition = Vector3.right * i;
-        }
+            cards[i].transform.localPosition = Vector3.right * (i*0.7f-offset);
     }
 
     public void OnSelectedCardsChanged() => pcoc?.OnSelectedChanged();

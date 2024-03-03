@@ -12,14 +12,13 @@ public class PlayerCardsOptionsController : MonoBehaviour
     [SerializeField]
     private GameObject buttonPrefab;
 
-    private HashSet<ExchangeGiver> registeredGivers;
+    private HashSet<ExchangeGiver> registeredGivers = new();
 
     private void Awake()
     {
         possibleExchanges = new();
         visibleButtons = new();
         selectedCards = new();
-        registeredGivers = new();
     }
     private void Start()
     {

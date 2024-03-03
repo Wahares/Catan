@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -16,7 +17,14 @@ public class SpecialCardView : CardView
 
     public override void OnClicked()
     {
-        Debug.Log("Cliecked special card");
+        if ((item as SpecialCard).CanUse())
+            CardChoiceManager.instance.CreateChoice("", new List<CardSO>() { item }, 0
+                , (e) => { (item as SpecialCard).OnUsed(); }
+                , null, null,true);
+    }
+    public override void DestroyCard()
+    {
+        Destroy(gameObject);
     }
 
 

@@ -2134,7 +2134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 3
-  max: 10
+  max: 5
   min: 3
   textDisplay: {fileID: 254961137}
 --- !u!1 &1087538499

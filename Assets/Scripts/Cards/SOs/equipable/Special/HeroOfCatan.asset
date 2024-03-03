@@ -9,16 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72624eedfd1338d41a16bda626a37867, type: 3}
+  m_Script: {fileID: 11500000, guid: 06cb1458c3103ab40b3c2d20a5aa6f82, type: 3}
   m_Name: HeroOfCatan
   m_EditorClassIdentifier: 
   cardTexture: {fileID: 0}
+  cardIcon: {fileID: 0}
   CardViewType: 2
   <cardName>k__BackingField: Heroe Of Catan
-  <description>k__BackingField: 1 victory point
+  <description>k__BackingField: +1 Victory Point
   <numberInDeck>k__BackingField: 10
   <sourceType>k__BackingField: 0
-  <IsPersistent>k__BackingField: 1
-  OnUse:
-    m_PersistentCalls:
-      m_Calls: []

@@ -141,7 +141,8 @@ public class PhaseManager : MonoBehaviour
             , 1
             , (e) => { PlayerInventoriesManager.instance.destroyMySpecialCard(e[0].ID); TurnManager.instance.endTurn(); }
             , null
-            , null);
+            , null
+            ,false);
             else
                 TurnManager.instance.endTurn();
         }
@@ -153,6 +154,19 @@ public class PhaseManager : MonoBehaviour
     {
         if (TurnManager.currentPhase != Phase.ManagingMetropoly)
             return;
+    }
+    public void OnMyGettingAdditionalCardPhaseTurn()
+    {
+        if (TurnManager.currentPhase != Phase.GettingAdditionalCard)
+            return;
+        CardChoiceManager.instance.CreateChoice(
+            "Pick additional card to get:"
+            , ObjectDefiner.instance.basicCards
+            , 1
+            , (e) => { PlayerInventoriesManager.instance.ChangeMyCardsQuantity(e[0].ID, 1); }
+            , null
+            , () => { PlayerInventoriesManager.instance.ChangeMyCardsQuantity(ObjectDefiner.instance.basicCards[Random.Range(0,ObjectDefiner.instance.basicCards.Count)].ID, 1); }
+            , false);
     }
 
 

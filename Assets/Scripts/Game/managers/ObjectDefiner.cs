@@ -29,4 +29,7 @@ public class ObjectDefiner : MonoBehaviour
     [System.Serializable]
     class pair { public TileType type; public PortTradingOption[] tradings; }
 
+    [field: SerializeField]
+    public List<CardSO> basicCards { get; private set; }
+
 }
