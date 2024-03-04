@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028468, g: 0.22571498, b: 0.30692357, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028417, g: 0.22571418, b: 0.3069225, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2090,6 +2090,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 251830039}
   preview: {fileID: 41821652}
   trader: {fileID: 1059932391}
+  isListening: 0
 --- !u!1 &672350525
 GameObject:
   m_ObjectHideFlags: 0
@@ -6820,6 +6821,12 @@ MonoBehaviour:
   - type: 5
     tradings:
     - {fileID: 11400000, guid: b826dc9db9c5d5f4aabb073cad2bade6, type: 2}
+  <basicCards>k__BackingField:
+  - {fileID: 11400000, guid: 0bc51dc6c431edb4db15ae518a2cbe16, type: 2}
+  - {fileID: 11400000, guid: 39f794c17552d2c4b8dc3a4b597ec734, type: 2}
+  - {fileID: 11400000, guid: 0ebb7df0e93d45f4387740da262f1bf6, type: 2}
+  - {fileID: 11400000, guid: 30387472f1a331841b887586aa3f576f, type: 2}
+  - {fileID: 11400000, guid: 0a264f5f53672254a9cdc887fbb64a6e, type: 2}
 --- !u!114 &1950016319
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,4 +15,5 @@ public class BuildingRecipe : RecipedCard
     {
         BuildingManager.instance.BeginBuilding(this);
     }
+    protected bool BaseCanUse(List<CardSO> cards, int clientID) => base.CanUse(cards, clientID);
 }
