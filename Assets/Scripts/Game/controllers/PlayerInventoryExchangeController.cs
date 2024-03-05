@@ -39,6 +39,7 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
             , null
             , null,
             true);
+        PlayerCardsOptionsController.isBeingUsed = true;
 
         /*
         currentOption = option;

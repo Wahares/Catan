@@ -18,9 +18,13 @@ public class SpecialCardView : CardView
     public override void OnClicked()
     {
         if ((item as SpecialCard).CanUse())
+        {
             CardChoiceManager.instance.CreateChoice("", new List<CardSO>() { item }, 0
                 , (e) => { (item as SpecialCard).OnUsed(); }
-                , null, null,true);
+                , null, null, true);
+            PlayerCardsOptionsController.isBeingUsed = true;
+        }
+
     }
     public override void DestroyCard()
     {

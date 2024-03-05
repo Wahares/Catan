@@ -98,6 +98,8 @@ public class CardChoiceManager : MonoBehaviour
         canvas.alpha = 0;
         canvas.interactable = false;
         canvas.blocksRaycasts = false;
+
+        PlayerCardsOptionsController.isBeingUsed = false;
     }
     public void CardClicked(SingleCardChoiceController sccc)
     {

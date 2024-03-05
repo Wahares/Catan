@@ -14,6 +14,8 @@ public class PlayerCardsOptionsController : MonoBehaviour
 
     private HashSet<ExchangeGiver> registeredGivers = new();
 
+    public static bool isBeingUsed = false;
+
     private void Awake()
     {
         possibleExchanges = new();
@@ -28,7 +30,7 @@ public class PlayerCardsOptionsController : MonoBehaviour
     {
         registeredGivers.Add(EG);
     }
-    
+
     private HashSet<RecipedCard> possibleExchanges;
 
     private List<CardSO> selectedCards;
@@ -86,7 +88,7 @@ public class PlayerCardsOptionsController : MonoBehaviour
                 possibleExchanges.Add(option);
         }
         foreach (var giver in registeredGivers)
-            giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId,selectedCards);
-        
+            giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId, selectedCards);
+
     }
 }

@@ -31,6 +31,7 @@ public class BuildingManager : NetworkBehaviour
         cc.currentFocusPieceType = br.piece.GetComponent<SinglePieceController>().placeType;
         Instantiate(br.piecePreview, preview).transform.localPosition = Vector3.zero;
         currentRecipe = br;
+        PlayerCardsOptionsController.isBeingUsed = true;
     }
 
     private void snapToCursor(Vector2Int? pos, PiecePlaceType type)
@@ -88,6 +89,7 @@ public class BuildingManager : NetworkBehaviour
             Destroy(preview.GetChild(0).gameObject);
         cc.currentFocusPieceType = PiecePlaceType.None;
         currentRecipe = null;
+        PlayerCardsOptionsController.isBeingUsed = false;
     }
     private void cancelBuilding()
     {
@@ -95,7 +97,7 @@ public class BuildingManager : NetworkBehaviour
             resetBuilding();
     }
     [ServerRpc(RequireOwnership = false)]
-    private void BuildPiece(Vector2Int pos, int brID, int clientID)
+    public void BuildPiece(Vector2Int pos, int brID, int clientID)
     {
         if (TurnManager.turnOrder[TurnManager.currentTurnID] == clientID)
             BuildPieceOnClients(pos, brID, clientID);

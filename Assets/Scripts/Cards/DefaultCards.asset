@@ -27,6 +27,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1d4b62b055b0c424eb8f164a42d222f4, type: 2}
   - {fileID: 11400000, guid: 2104e17dc2597a742b166b8c569a1a95, type: 2}
   - {fileID: 11400000, guid: a0be64932d24c054994ef1bfedc21587, type: 2}
+  - {fileID: 11400000, guid: 13e37acaed146fc48bd4100bd867dd9a, type: 2}
+  - {fileID: 11400000, guid: bcbcb89c32cee4241a84844d11919176, type: 2}
   <tradingRecipes>k__BackingField:
   - {fileID: 11400000, guid: 5a1325dcc6988334c9523702536d1cde, type: 2}
   - {fileID: 11400000, guid: 040e43ba093bd6b4587c0241134e59cb, type: 2}

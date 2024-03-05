@@ -34,6 +34,8 @@ public class HandCardView : CardView
         }
         else
         {
+            if (PlayerCardsOptionsController.isBeingUsed)
+                return;
             hce.selected = true;
             piv.selectedCardsViews.Add(this);
             piv.OnSelectedCardsChanged();

@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a248b67359eea5049ae8c326730cc121, type: 3}
+  m_Script: {fileID: 11500000, guid: b334631043ba7de43ad4d7144627ff15, type: 3}
   m_Name: Knight
   m_EditorClassIdentifier: 
   materials:
@@ -18,7 +18,6 @@ MonoBehaviour:
   - card: {fileID: 11400000, guid: 39f794c17552d2c4b8dc3a4b597ec734, type: 2}
     number: 1
   icon: {fileID: 0}
-  piece: {fileID: 2358506310697655434, guid: 4277524f86fe37b429a4ea5dc3b4734c, type: 3}
-  piecePreview: {fileID: 2078677843936281678, guid: 8686f1a4c30d93f449b141beed40c0ce,
-    type: 3}
-  maxOnBoard: 5
+  piece: {fileID: 1660732678837308217, guid: 75a76032d16660e45b7ade97cddb59e6, type: 3}
+  piecePreview: {fileID: 0}
+  maxOnBoard: 2

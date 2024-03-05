@@ -412,7 +412,7 @@ public class BoardManager : NetworkBehaviour
     }
     public int KnightPowerOfPlayer(int clientID)
     {
-        return GetPlayerPieces<KnightController>(clientID, PiecePlaceType.Crossing).Sum(e => e.isMobilized ? 1 : 0);
+        return GetPlayerPieces<KnightController>(clientID, PiecePlaceType.Crossing).Sum(e => e.isMobilized ? e.currentLevel : 0);
     }
     public bool areWeInDanger()
     {

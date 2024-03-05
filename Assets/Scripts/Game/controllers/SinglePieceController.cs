@@ -5,7 +5,7 @@ public abstract class SinglePieceController : MonoBehaviour
     public int pieceOwnerID { get; protected set; }
     public Vector2Int codedPos { get; protected set; }
     [SerializeField]
-    private Material[] materials;
+    protected Material[] materials;
     [SerializeField]
     protected MeshRenderer render;
     public abstract PieceType pieceType { get; }
@@ -14,7 +14,7 @@ public abstract class SinglePieceController : MonoBehaviour
     {
         this.codedPos = codedPos;
         pieceOwnerID = ownerID;
-        render.material = new Material(materials[PlayerManager.instance.playerColors[ownerID]]);
+        render.material = materials[PlayerManager.instance.playerColors[ownerID]];
         BoardManager.instance.setPiece(codedPos, this);
     }
     public virtual void OnTileInvoked(TileController source) { }
