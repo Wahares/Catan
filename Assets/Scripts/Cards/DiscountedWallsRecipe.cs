@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DiscountedBuildingRecipe : BuildingRecipe
+public class DiscountedWallsRecipe : WallsRecipe
 {
     public override void OnBuilded(Vector2Int pos, int clientID)
     {

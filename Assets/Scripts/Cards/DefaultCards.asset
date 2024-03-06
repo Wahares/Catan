@@ -33,6 +33,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 75816d1c6a533ac48b40d5d3e69595dd, type: 2}
   - {fileID: 11400000, guid: 187a01baa4481a84d9db74a4287c529f, type: 2}
   - {fileID: 11400000, guid: eb57ddb8d76f75c49ab6800429bd2607, type: 2}
+  - {fileID: 11400000, guid: c1b4df2bbeed63b47bc02427448e10c9, type: 2}
+  - {fileID: 11400000, guid: ed513eb6843532b478990d092c299191, type: 2}
   <buildingRecipes>k__BackingField:
   - {fileID: 11400000, guid: 1d4b62b055b0c424eb8f164a42d222f4, type: 2}
   - {fileID: 11400000, guid: 2104e17dc2597a742b166b8c569a1a95, type: 2}

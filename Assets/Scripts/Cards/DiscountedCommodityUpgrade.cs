@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
-
 public class DiscountedCommodityUpgrade : CommodityUpgradeRecipe
 {
     private Crane craneCard;
@@ -12,5 +10,4 @@ public class DiscountedCommodityUpgrade : CommodityUpgradeRecipe
         base.OnUsed();
         craneCard.cardUsed();
     }
-
 }
