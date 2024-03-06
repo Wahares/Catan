@@ -15,5 +15,9 @@ public class BuildingRecipe : RecipedCard
     {
         BuildingManager.instance.BeginBuilding(this);
     }
+    public virtual void OnBuilded(Vector2Int pos, int clientID)
+    {
+        BuildingManager.instance.BuildPiece(pos, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(this), clientID);
+    }
     protected bool BaseCanUse(List<CardSO> cards, int clientID) => base.CanUse(cards, clientID);
 }

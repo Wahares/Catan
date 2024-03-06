@@ -40,6 +40,8 @@ public class BuildingManager : NetworkBehaviour
             return;
         if (pos == null)
             return;
+        if (preview.childCount == 0)
+            return;
         Vector3 globalPos = Vector3.down * 10;
         Vector3 rot = Vector3.zero;
         switch (type)
@@ -65,6 +67,11 @@ public class BuildingManager : NetworkBehaviour
         }
         preview.position = globalPos;
         preview.eulerAngles = rot;
+
+        if (preview.GetChild(0).TryGetComponent(out KnightPreview KR))
+            if (currentRecipe.piece.GetComponent<SinglePieceController>()?.CanIPlaceHere(pos ?? Vector2Int.zero) ?? true)
+                KR.changeMode(BoardManager.instance.crossings[pos ?? Vector2Int.zero].currentPiece != null);
+
     }
     [SerializeField]
     private BuildingRecipe roadRecipe;
@@ -77,7 +84,8 @@ public class BuildingManager : NetworkBehaviour
 
         if (!(currentRecipe.piece.GetComponent<SinglePieceController>()?.CanIPlaceHere(pos ?? Vector2Int.zero) ?? true))
             return;
-        BuildPiece(pos ?? Vector2Int.zero, ObjectDefiner.instance.availableBuildingRecipes.IndexOf(currentRecipe), LocalConnection.ClientId);
+
+        currentRecipe.OnBuilded(pos ?? Vector2Int.zero, GameManager.instance.LocalConnection.ClientId);
 
         resetBuilding();
         if (TurnManager.currentPhase == Phase.FreeBuild)

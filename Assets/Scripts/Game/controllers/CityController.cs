@@ -6,8 +6,20 @@ public class CityController : SettlementController
     public override PieceType pieceType => PieceType.City;
     public bool isMetropoly, hasWalls;
     [SerializeField]
-    private GameObject wallsObj, metropolyObj;
-    private GameObject currentWalls,currentMetropoly;
+    private GameObject wallsObj, metropolyObj, wallsPlate;
+
+    [SerializeField]
+    private Material[] wallsMats, metropolisMats;
+    public override void Initialize(int ownerID, Vector2Int codedPos)
+    {
+        base.Initialize(ownerID, codedPos);
+
+        wallsObj.GetComponent<MeshRenderer>().material = wallsMats[PlayerManager.instance.playerColors[ownerID]];
+        wallsPlate.GetComponent<MeshRenderer>().material = wallsMats[PlayerManager.instance.playerColors[ownerID]];
+
+        metropolyObj.GetComponent<MeshRenderer>().material = metropolisMats[PlayerManager.instance.playerColors[ownerID]];
+    }
+
     public override void OnTileInvoked(TileController tc)
     {
         base.OnTileInvoked(tc);
@@ -47,34 +59,35 @@ public class CityController : SettlementController
     public void makeItMetropoly()
     {
         isMetropoly = true;
-        currentMetropoly = Instantiate(metropolyObj, transform);
-        currentMetropoly.transform.DOKill();
-        currentMetropoly.transform.localPosition = Vector3.up;
-        currentMetropoly.transform.DOLocalMoveY(0, 0.5f);
+
+        metropolyObj.transform.DOKill();
+        metropolyObj.transform.localPosition = Vector3.up*0.3f;
+        metropolyObj.SetActive(true);
+        metropolyObj.transform.DOLocalMoveY(-0.03f, 0.5f);
     }
     public void destroyMetropoly()
     {
         isMetropoly = false;
-        GameObject tmp = currentMetropoly;
-        currentMetropoly = null;
-        tmp.transform.DOKill();
-        tmp.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() => { Destroy(tmp); });
+        metropolyObj.transform.DOKill();
+        metropolyObj.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() => { metropolyObj.SetActive(false); });
     }
     public void makeWalls()
     {
         hasWalls = true;
-        currentWalls = Instantiate(wallsObj, transform);
-        currentWalls.transform.DOKill();
-        currentWalls.transform.localPosition = Vector3.up;
-        currentWalls.transform.DOLocalMoveY(0, 0.5f);
+
+        wallsObj.transform.parent.transform.DOKill();
+        wallsObj.transform.parent.transform.localPosition = Vector3.up * 0.3f;
+        wallsObj.transform.parent.gameObject.SetActive(true);
+        wallsObj.transform.parent.transform.DOLocalMoveY(-0.03f, 0.5f);
     }
     public void destroyWalls()
     {
         hasWalls = false;
-        GameObject tmp = currentWalls;
-        currentWalls = null;
-        tmp.transform.DOKill();
-        tmp.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() => { Destroy(tmp); });
+        wallsObj.transform.parent.transform.DOKill();
+        wallsObj.transform.parent.transform.DOScale(Vector3.zero, 0.5f).OnComplete(() =>
+        {
+            wallsObj.transform.parent.gameObject.SetActive(false);
+        });
     }
 
 }

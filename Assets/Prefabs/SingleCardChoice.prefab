@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3535256471758507465}
   - component: {fileID: 5131291561264883366}
   m_Layer: 0
-  m_Name: SingleChoice
+  m_Name: SingleCardChoice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

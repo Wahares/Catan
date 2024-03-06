@@ -198,12 +198,15 @@ public class PlayerInventoriesManager : NetworkBehaviour
     [SerializeField]
     private Transform specialCardEffectPivot;
     [ServerRpc(RequireOwnership = false)]
-    public void SpecialCardUseEffect(int cardID)
+    public void SpecialCardUseEffect(int cardID, NetworkConnection nc = null)
     {
         if (cardID == -1)
             Debug.LogError("Tried to do effect with null card");
         else
+        {
             SpecialCardUseEffectRPC(cardID);
+            ChangeCardQuantity(nc.ClientId, cardID, -1);
+        }
     }
     [ObserversRpc]
     public void SpecialCardUseEffectRPC(int cardID)
@@ -216,6 +219,19 @@ public class PlayerInventoriesManager : NetworkBehaviour
         specialCardEffectPivot.transform.localPosition = new Vector3(4, 0, 1);
         specialCardEffectPivot.transform.DOLocalMove(Vector3.zero, 2).SetEase(Ease.OutSine);
         specialCardEffectPivot.transform.DOLocalMove(new Vector3(4, 0, 1), 1).SetEase(Ease.InSine).SetDelay(4).OnComplete(() => { Destroy(obj); });
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AskToGiveCard(int cardID, int giverID, int delta, NetworkConnection nc = null)
+    {
+        for (int i = 0; i < delta; i++)
+            if (playerInventories[giverID][cardID] > 0)
+            {
+                ChangeCardQuantity(giverID, cardID, -1);
+                ChangeCardQuantity(nc.ClientId, cardID, 1);
+            }
+            else
+                break;
     }
 
 

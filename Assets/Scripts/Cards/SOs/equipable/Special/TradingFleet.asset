@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88d7a36aa0a7b074ea21a38c15164202, type: 3}
+  m_Name: TradingFleet
+  m_EditorClassIdentifier: 
+  cardTexture: {fileID: 2100000, guid: 89efccbb7d6de844bb158caade5f8478, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 1
+  <cardName>k__BackingField: Trading Fleet
+  <description>k__BackingField: Pick material/commodity to get 2:1 trade
+  <numberInDeck>k__BackingField: 2
+  <sourceType>k__BackingField: 1
+  options:
+  - {fileID: 11400000, guid: 93832bb5ddeb2514bb72f149172b2630, type: 2}
+  - {fileID: 11400000, guid: 9a50e6c6cd9b6364684d88f4d1ce0703, type: 2}
+  - {fileID: 11400000, guid: 26d014262b9f2b14a8b99d5853345532, type: 2}
+  - {fileID: 11400000, guid: b826dc9db9c5d5f4aabb073cad2bade6, type: 2}
+  - {fileID: 11400000, guid: 4813c4beac5ca574cacf0f411c5edd5e, type: 2}
+  - {fileID: 11400000, guid: 286a6140d30abd14aa6ef0264b468b06, type: 2}
+  - {fileID: 11400000, guid: dbec3c2138ad63946883fec0e9282226, type: 2}
+  - {fileID: 11400000, guid: e289465368c119543ad0d051006b4ea4, type: 2}

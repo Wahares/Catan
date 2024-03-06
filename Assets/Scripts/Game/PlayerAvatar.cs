@@ -11,7 +11,7 @@ public class PlayerAvatar : MonoBehaviour
     public PlayerAvatar Initialize(ulong steamID)
     {
         render.material = new Material(render.material);
-        render.material.mainTexture = getSteamAvatar(SteamUser.GetSteamID());
+        render.material.mainTexture = getSteamAvatar((CSteamID)steamID);
         return this;
     }
     public static Texture2D getSteamAvatar(CSteamID steamID)

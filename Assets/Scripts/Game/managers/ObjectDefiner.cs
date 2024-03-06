@@ -31,5 +31,7 @@ public class ObjectDefiner : MonoBehaviour
 
     [field: SerializeField]
     public List<CardSO> basicCards { get; private set; }
+    [field: SerializeField]
+    public List<CardSO> commodityCards { get; private set; }
 
 }

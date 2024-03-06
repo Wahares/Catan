@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c4069b00d5ea64191b174b431b2192, type: 3}
+  m_Name: MaterialMonopol
+  m_EditorClassIdentifier: 
+  cardTexture: {fileID: 2100000, guid: 89efccbb7d6de844bb158caade5f8478, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 1
+  <cardName>k__BackingField: Material Monopol
+  <description>k__BackingField: Everyone have to give you 2x Material Card if they
+    have it
+  <numberInDeck>k__BackingField: 4
+  <sourceType>k__BackingField: 1

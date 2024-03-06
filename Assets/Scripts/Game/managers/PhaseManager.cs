@@ -154,6 +154,7 @@ public class PhaseManager : MonoBehaviour
     {
         if (TurnManager.currentPhase != Phase.ManagingMetropoly)
             return;
+        FindAnyObjectByType<MetropolyController>().beginBuilding();
     }
     public void OnMyGettingAdditionalCardPhaseTurn()
     {
@@ -306,7 +307,7 @@ public class PhaseManager : MonoBehaviour
     {
         if (endedPhase != Phase.GettingSpecialCards)
             return;
-        /*
+        
         int diceNum = TurnManager.currentPhaseArgs & ((1 << 4) - 1);
         growthType type = (growthType)(TurnManager.currentPhaseArgs >> 3);
 
@@ -315,7 +316,7 @@ public class PhaseManager : MonoBehaviour
                 PlayerInventoriesManager.instance.giveRandomSpecial(clientID, type);
 
         TurnManager.instance.ForceEndTurn();
-        */
+        
     }
     public void OnRemovingSpecialCardsTimeLimitReached(int clientID, Phase endedPhase)
     {

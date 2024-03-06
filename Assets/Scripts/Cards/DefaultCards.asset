@@ -23,6 +23,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d9f2d9a814553484394041d9df667429, type: 2}
   - {fileID: 11400000, guid: 0febd8ae0380724459a6696a21aeb052, type: 2}
   - {fileID: 11400000, guid: 60395dda44e7525429f3fa1b2da620fb, type: 2}
+  - {fileID: 11400000, guid: 5da9d072a67414045be37755c927694d, type: 2}
+  - {fileID: 11400000, guid: 30e028ad0df033e4d96b7ff9565525db, type: 2}
+  - {fileID: 11400000, guid: ff53e732f30b87a48878fdefda1ba609, type: 2}
+  - {fileID: 11400000, guid: b31d1a8f4af81024994508936784c8ef, type: 2}
+  - {fileID: 11400000, guid: 32b0297d87e9b174a9ba23cb84a93a29, type: 2}
+  - {fileID: 11400000, guid: c8eb6129b17c47745a2f5cb6f3aa7915, type: 2}
+  - {fileID: 11400000, guid: 3abe475dc4ac56544b894a0ed5d92a41, type: 2}
+  - {fileID: 11400000, guid: 75816d1c6a533ac48b40d5d3e69595dd, type: 2}
+  - {fileID: 11400000, guid: 187a01baa4481a84d9db74a4287c529f, type: 2}
+  - {fileID: 11400000, guid: eb57ddb8d76f75c49ab6800429bd2607, type: 2}
   <buildingRecipes>k__BackingField:
   - {fileID: 11400000, guid: 1d4b62b055b0c424eb8f164a42d222f4, type: 2}
   - {fileID: 11400000, guid: 2104e17dc2597a742b166b8c569a1a95, type: 2}

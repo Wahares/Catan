@@ -29,6 +29,7 @@ public class PlayerInventoryExchangeController : NetworkBehaviour
     [SerializeField]
     private List<CardSO> tradingCards;
 
+
     public void BeginTransaction(TradingOption option)
     {
         currentOption = option;

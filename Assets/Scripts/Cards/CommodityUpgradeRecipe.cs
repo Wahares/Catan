@@ -3,9 +3,10 @@ using System.Collections.Generic;
 public class CommodityUpgradeRecipe : TradingOption
 {
     public growthType type;
-    public override bool CanUse(List<CardSO> cards, int clientID)
+    public override bool CanUse(List<CardSO> cards, int clientID) => canUse(cards, clientID, 0);
+    protected bool canUse(List<CardSO> cards, int clientID, int delta)
     {
-        int currentLevel = CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type);
+        int currentLevel = CommodityUpgradeManager.instance.getUpgradeLevel(clientID, type) + delta;
         if (currentLevel == 5)
             return false;
         bool hasNormalCity = false;
@@ -23,10 +24,10 @@ public class CommodityUpgradeRecipe : TradingOption
                     hasNormalCity = true;
             }
         }
-       
-        if(!hasAnyCity)
+
+        if (!hasAnyCity)
             return false;
-        if(!hasNormalCity && currentLevel>=3)
+        if (!hasNormalCity && currentLevel >= 3)
             return false;
 
         int remaining = currentLevel + 1;

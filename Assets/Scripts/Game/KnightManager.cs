@@ -1,4 +1,5 @@
 using FishNet.Object;
+using System.Linq;
 using UnityEngine;
 
 public class KnightManager : NetworkBehaviour
@@ -8,23 +9,28 @@ public class KnightManager : NetworkBehaviour
     [SerializeField]
     private GameObject lvl1Preview, UpgradePreview, MobilizationPreview;
 
-    private CursorController cc;
+    //private CursorController cc;
 
     private void Awake()
     {
         instance = this;
-        cc = GetComponent<CursorController>();
-        TurnManager.OnMyTurnEnded += CancelUpgrade;
-        TurnManager.OnMyTurnEnded += CancelMobilization;
+        //cc = GetComponent<CursorController>();
+        KR = ObjectDefiner.instance.availableBuildingRecipes
+            .Where(e => e is KnightRecipe)
+            .First() as KnightRecipe;
+        //TurnManager.OnMyTurnEnded += CancelUpgrade;
+        //TurnManager.OnMyTurnEnded += CancelMobilization;
     }
     private void OnDestroy()
     {
         instance = null;
-        TurnManager.OnMyTurnEnded -= CancelUpgrade;
-        TurnManager.OnMyTurnEnded -= CancelMobilization;
+        //TurnManager.OnMyTurnEnded -= CancelUpgrade;
+        //TurnManager.OnMyTurnEnded -= CancelMobilization;
     }
     private KnightRecipe KR;
+    /*
     private KnightMobilization KM;
+
     public void BeginUpgrading(KnightRecipe KR)
     {
         if (this.KR == null)
@@ -143,10 +149,10 @@ public class KnightManager : NetworkBehaviour
         PlayerInventoriesManager.instance.ChangeMyCardsQuantity(KM.materials[0].card.ID, -KM.materials[0].number);
 
         CancelMobilization();
-    }
+    }*/
 
     [ServerRpc(RequireOwnership = false)]
-    private void changeLevel(Vector2Int pos, int level)
+    public void changeLevel(Vector2Int pos, int level)
     {
         changeLevelRPC(pos, level);
     }
@@ -168,7 +174,7 @@ public class KnightManager : NetworkBehaviour
     }
 
 
-
+    /*
     private void CancelUpgrade()
     {
         UpgradePreview.SetActive(false);
@@ -190,6 +196,7 @@ public class KnightManager : NetworkBehaviour
 
         PlayerCardsOptionsController.isBeingUsed = false;
     }
+    */
 
     public bool BelowMaxKnights(int clientID, int level)
     {

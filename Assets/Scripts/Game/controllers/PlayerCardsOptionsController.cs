@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class PlayerCardsOptionsController : MonoBehaviour
 {
+    public static PlayerCardsOptionsController instance { get; private set; }
     private PlayerInventoryView piv;
 
     [SerializeField]
@@ -18,13 +19,20 @@ public class PlayerCardsOptionsController : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
         possibleExchanges = new();
         visibleButtons = new();
         selectedCards = new();
+        TurnManager.OnMyTurnStarted += ResetTemporaryOptions;
     }
     private void Start()
     {
         piv = PlayerInventoriesManager.instance.localInventory;
+    }
+    private void OnDestroy()
+    {
+        instance = null;
+        TurnManager.OnMyTurnStarted -= ResetTemporaryOptions;
     }
     public void RegisterExchangeGiver(ExchangeGiver EG)
     {
@@ -70,6 +78,7 @@ public class PlayerCardsOptionsController : MonoBehaviour
         }
     }
 
+    public List<RecipedCard> temporaryTradingsForRound = new();
     public void FindAllPossibilities()
     {
         possibleExchanges.Clear();
@@ -89,6 +98,16 @@ public class PlayerCardsOptionsController : MonoBehaviour
         }
         foreach (var giver in registeredGivers)
             giver.TryToGiveOption(ref possibleExchanges, GameManager.instance.LocalConnection.ClientId, selectedCards);
-
+        foreach (var option in temporaryTradingsForRound)
+            if (!possibleExchanges.Contains(option))
+                possibleExchanges.Add(option);
+    }
+    private void ResetTemporaryOptions()
+    {
+        if (!TurnManager.isMyTurn)
+            return;
+        if (TurnManager.currentPhase != Phase.BeforeRoll)
+            return;
+        temporaryTradingsForRound.Clear();
     }
 }

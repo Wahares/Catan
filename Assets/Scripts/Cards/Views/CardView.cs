@@ -4,7 +4,7 @@ public abstract class CardView : MonoBehaviour
 {
     [SerializeField]
     protected MeshRenderer render;
-    public int ID { get; private set; }
+    public int ID { get; protected set; }
 
     public CardSO item { get; private set; }
 

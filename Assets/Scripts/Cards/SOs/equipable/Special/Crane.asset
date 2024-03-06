@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df77d1d305dfc0d4fbe40eef54692b1c, type: 3}
+  m_Name: Crane
+  m_EditorClassIdentifier: 
+  cardTexture: {fileID: 2100000, guid: 89efccbb7d6de844bb158caade5f8478, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 1
+  <cardName>k__BackingField: Crane
+  <description>k__BackingField: Commodity upgrade costs one item less
+  <numberInDeck>k__BackingField: 2
+  <sourceType>k__BackingField: 3
+  discountedPolitics: {fileID: 11400000, guid: c62ae2254968a7c499ede67058593cac, type: 2}
+  discountedScience: {fileID: 11400000, guid: cf8cd730715e903498d339a924c3f83d, type: 2}
+  discountedTrade: {fileID: 11400000, guid: 406527cf4b1ebda489c71f419ff20506, type: 2}

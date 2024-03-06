@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf8f2c9f9e1bbcb44a487b5b5b37ca22, type: 3}
+  m_Name: Mining
+  m_EditorClassIdentifier: 
+  cardTexture: {fileID: 2100000, guid: 89efccbb7d6de844bb158caade5f8478, type: 2}
+  cardIcon: {fileID: 0}
+  CardViewType: 1
+  <cardName>k__BackingField: Mining
+  <description>k__BackingField: Get 2x ore for each tile with settlement or city
+  <numberInDeck>k__BackingField: 2
+  <sourceType>k__BackingField: 3
+  card: {fileID: 0}
