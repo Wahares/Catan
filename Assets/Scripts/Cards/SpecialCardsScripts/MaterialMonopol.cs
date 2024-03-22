@@ -1,9 +1,11 @@
+using System.Linq;
+
 public class MaterialMonopol : SpecialCard
 {
     public override void OnUsed()
     {
         CardChoiceManager.instance.CreateChoice("Choose Material:"
-            , ObjectDefiner.instance.basicCards
+            , ObjectDefiner.instance.basicCards.Select(e=>e as CardSO).ToList()
             , 1
             , (e) =>
             {

@@ -16,4 +16,12 @@ public class CrossingController : PieceContainerController<CrossingController, S
             .Select(e => e.GetComponent<RoadController>())
             .Where(p => p != null).ToList();
     }
+    public List<TileController> GetTilesControllers()
+    {
+        return Physics
+            .OverlapSphere(transform.position, 0.75f
+            , LayerMask.GetMask("Tile"), QueryTriggerInteraction.Collide)
+            .Select(e => e.GetComponent<TileController>())
+            .Where(p => p != null).ToList();
+    }
 }

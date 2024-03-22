@@ -162,7 +162,7 @@ public class PhaseManager : MonoBehaviour
             return;
         CardChoiceManager.instance.CreateChoice(
             "Pick additional card to get:"
-            , ObjectDefiner.instance.basicCards
+            , ObjectDefiner.instance.basicCards.Select(e=>e as CardSO).ToList()
             , 1
             , (e) => { PlayerInventoriesManager.instance.ChangeMyCardsQuantity(e[0].ID, 1); }
             , null

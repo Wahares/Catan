@@ -30,7 +30,7 @@ public class ObjectDefiner : MonoBehaviour
     class pair { public TileType type; public PortTradingOption[] tradings; }
 
     [field: SerializeField]
-    public List<CardSO> basicCards { get; private set; }
+    public List<NormalCard> basicCards { get; private set; }
     [field: SerializeField]
     public List<CardSO> commodityCards { get; private set; }
 

@@ -7493,7 +7493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a89ba505b756c5b409bf3540177cbf3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  preview: {fileID: 0}
+  preview: {fileID: 34604435}
   isListening: 0
 --- !u!1 &1957388483
 GameObject:
