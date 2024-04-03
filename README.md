@@ -2,7 +2,7 @@
 # Indie PC adaptation of board game "Settlers of Catan" with "Cities and Knights" expansion made as a hobby project  
 
 ## One month progress gameplay showcase video:  
-[![](https://img.youtube.com/vi/_mK8qHUDhUs/0.jpg)](https://youtu.be/_mK8qHUDhUs))
+[![](https://img.youtube.com/vi/_mK8qHUDhUs/0.jpg)](https://youtu.be/_mK8qHUDhUs)
   
 ## Multiplayer gameplay using FishNet networking solution  
 Using Steamworks to implement Steam based lobby system  
