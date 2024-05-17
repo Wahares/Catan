@@ -237,6 +237,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef3446b28097e8e4587f5cc09ef72265, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  politics: {fileID: 4087757734035935326}
+  trade: {fileID: 670612843293768150}
+  science: {fileID: 3074741583384201340}
 --- !u!1 &2670480646138755470
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,6 +473,7 @@ GameObject:
   - component: {fileID: 739105196543487795}
   - component: {fileID: 6158042144071949177}
   - component: {fileID: 660970688644775031}
+  - component: {fileID: 3074741583384201340}
   m_Layer: 0
   m_Name: Science
   m_TagString: Untagged
@@ -536,6 +540,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3074741583384201340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4123578241368196566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d718ac5c55073a4b815b86cf185d3e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  img: {fileID: 7211710897051510099}
 --- !u!1 &5122296558473246472
 GameObject:
   m_ObjectHideFlags: 0
@@ -547,6 +564,7 @@ GameObject:
   - component: {fileID: 8058931688554670594}
   - component: {fileID: 4791121462623763557}
   - component: {fileID: 2336624198295606753}
+  - component: {fileID: 4087757734035935326}
   m_Layer: 0
   m_Name: Politics
   m_TagString: Untagged
@@ -613,6 +631,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4087757734035935326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5122296558473246472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d718ac5c55073a4b815b86cf185d3e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  img: {fileID: 8631437971235432429}
 --- !u!1 &5881788032806738896
 GameObject:
   m_ObjectHideFlags: 0
@@ -624,6 +655,7 @@ GameObject:
   - component: {fileID: 7132241676546164562}
   - component: {fileID: 7912472292887867794}
   - component: {fileID: 7817440195616572794}
+  - component: {fileID: 670612843293768150}
   m_Layer: 0
   m_Name: Trading
   m_TagString: Untagged
@@ -690,6 +722,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &670612843293768150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5881788032806738896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d718ac5c55073a4b815b86cf185d3e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  img: {fileID: 127972685970608312}
 --- !u!1 &6706628098807188723
 GameObject:
   m_ObjectHideFlags: 0
@@ -799,7 +844,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3149301670505568615
 Transform:
   m_ObjectHideFlags: 0
@@ -815,7 +860,7 @@ Transform:
   - {fileID: 4176068012212826806}
   - {fileID: 7543456754485079435}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3767598746337815602
 MonoBehaviour:
